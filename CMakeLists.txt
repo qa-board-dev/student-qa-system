@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.31)
--DCMAKE_TOOLCHAIN_FILE=/absolute/path/to/your/repo/vcpkg/scripts/buildsystems/vcpkg.cmake
-
-project(CSE360)
+project(Project_A1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Weffc++ -Wextra -Wconversion -Wsign-conversion")
+set(CMAKE_AUTOMOC ON)
 
-add_executable(CSE360 main.cpp)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
-
+add_executable(Project_A1 main.cpp
+        mainwindow.h
+        mainwindow.cpp
+)
+target_link_libraries(Project_A1 PRIVATE Qt6::Widgets)
