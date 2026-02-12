@@ -22,9 +22,6 @@ private:
     QWidget* createLoginScreen();
     QWidget* createFirstUserSetupScreen();
     QWidget* createRoleSelectionScreen();
-    QWidget* createAdminScreen();
-    QWidget* createStudentScreen();
-    QWidget* createReviewerScreen();
 
     void switchScreen(QWidget* screen);
 };

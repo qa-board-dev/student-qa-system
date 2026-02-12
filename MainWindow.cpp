@@ -8,6 +8,11 @@
 #include <QVBoxLayout>
 #include <QFile>
 #include <QApplication>
+#include "AdminWindow.h"
+#include "StudentWindow.h"
+#include "ReviewerWindow.h"
+
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -21,10 +26,6 @@ MainWindow::MainWindow(QWidget *parent)
     stack->addWidget(createLoginScreen());
     stack->addWidget(createFirstUserSetupScreen());
     stack->addWidget(createRoleSelectionScreen());
-    stack->addWidget(createAdminScreen());
-    stack->addWidget(createStudentScreen());
-    stack->addWidget(createReviewerScreen());
-
     stack->setCurrentIndex(0);
 }
 
@@ -59,15 +60,15 @@ QWidget* MainWindow::createLoginScreen()
     layout->addWidget(loginBtn);
     layout->addWidget(firstUserBtn);
 
-    connect(loginBtn, &QPushButton::clicked, [=](){
-        stack->setCurrentIndex(2); // Role selection
+    connect(loginBtn, &QPushButton::clicked, this, [this](){
+        stack->setCurrentIndex(2);
     });
 
-    connect(firstUserBtn, &QPushButton::clicked, [=](){
+    connect(firstUserBtn, &QPushButton::clicked, this, [this]() {
         stack->setCurrentIndex(1);
     });
 
-    QSettings settings("MyCompany", "StudentQASystem");
+    QSettings settings("Admin", "QA");
     bool adminExists = settings.value("adminCreated", false).toBool();
 
     if (adminExists) {
@@ -102,7 +103,10 @@ QWidget* MainWindow::createFirstUserSetupScreen()
     layout->addWidget(password);
     layout->addWidget(createBtn);
 
-    connect(createBtn, &QPushButton::clicked, [=](){
+    connect(createBtn, &QPushButton::clicked, this, [this](){
+
+		QSettings settings("Admin", "QA");
+		settings.setValue("AdminCreated", true);
         QMessageBox::information(this, "Success",
                                  "Admin created. Please login again.");
         stack->setCurrentIndex(0);
@@ -131,119 +135,26 @@ QWidget* MainWindow::createRoleSelectionScreen()
     layout->addWidget(reviewerBtn);
     layout->addWidget(logoutBtn);
 
-    connect(adminBtn, &QPushButton::clicked, [=](){
-        stack->setCurrentIndex(3);
+    connect(adminBtn, &QPushButton::clicked, this, [this]() {
+        AdminWindow *admin = new AdminWindow();
+		admin->show();
+
+		this->hide();
     });
 
-    connect(studentBtn, &QPushButton::clicked, [=](){
+    connect(studentBtn, &QPushButton::clicked, this, [this]() {
         stack->setCurrentIndex(4);
     });
 
-    connect(reviewerBtn, &QPushButton::clicked, [=](){
-        stack->setCurrentIndex(5);
-    });
+    connect(reviewerBtn, &QPushButton::clicked, this, [this]() {
+    ReviewerWindow *reviewer = new ReviewerWindow(this);
+    reviewer->show();
+    this->hide();
+	});
 
-    connect(logoutBtn, &QPushButton::clicked, [=](){
-        stack->setCurrentIndex(0);
-    });
-
-    return widget;
-}
-
-
-QWidget* MainWindow::createAdminScreen()
-{
-    QWidget *widget = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(widget);
-
-    QLabel *title = new QLabel("Admin Dashboard");
-    title->setAlignment(Qt::AlignCenter);
-
-    QLineEdit *inviteCode = new QLineEdit;
-    inviteCode->setPlaceholderText("One-time Invitation Code");
-
-    QDateEdit *deadline = new QDateEdit;
-    deadline->setCalendarPopup(true);
-
-    QPushButton *generateBtn = new QPushButton("Generate Invitation");
-    QPushButton *logoutBtn = new QPushButton("Logout");
-
-    layout->addWidget(title);
-    layout->addWidget(inviteCode);
-    layout->addWidget(deadline);
-    layout->addWidget(generateBtn);
-    layout->addWidget(logoutBtn);
-
-    connect(logoutBtn, &QPushButton::clicked, [=](){
-        stack->setCurrentIndex(0);
-    });
-
-
-    return widget;
-}
-
-QWidget* MainWindow::createStudentScreen()
-{
-    QWidget *widget = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(widget);
-
-    QLabel *title = new QLabel("Student Dashboard");
-    title->setAlignment(Qt::AlignCenter);
-
-    QTextEdit *questionBox = new QTextEdit;
-    questionBox->setPlaceholderText("Ask your question here: ");
-
-    QListWidget *relatedQuestions = new QListWidget;
-
-    QListWidget *answersList = new QListWidget;
-
-    QPushButton *submitBtn = new QPushButton("Submit Question");
-    QPushButton *logoutBtn = new QPushButton("Logout");
-
-    layout->addWidget(title);
-    layout->addWidget(new QLabel("Your Question:"));
-    layout->addWidget(questionBox);
-    layout->addWidget(new QLabel("Related Questions:"));
-    layout->addWidget(relatedQuestions);
-    layout->addWidget(answersList);
-    layout->addWidget(submitBtn);
-    layout->addWidget(logoutBtn);
-
-    connect(logoutBtn, &QPushButton::clicked, [=](){
-        stack->setCurrentIndex(0);
-    });
-
-    return widget;
-}
-
-
-QWidget* MainWindow::createReviewerScreen()
-{
-    QWidget *widget = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(widget);
-
-    QLabel *title = new QLabel("Reviewer Dashboard");
-    title->setAlignment(Qt::AlignCenter);
-
-    QListWidget *answersToReview = new QListWidget;
-
-    QTextEdit *reviewBox = new QTextEdit;
-    reviewBox->setPlaceholderText("Write your review here: ");
-
-    QPushButton *submitReview = new QPushButton("Submit Review");
-    QPushButton *logoutBtn = new QPushButton("Logout");
-
-    layout->addWidget(title);
-    layout->addWidget(new QLabel("Answers:"));
-    layout->addWidget(answersToReview);
-    layout->addWidget(new QLabel("Review:"));
-    layout->addWidget(reviewBox);
-    layout->addWidget(submitReview);
-    layout->addWidget(logoutBtn);
-
-    connect(logoutBtn, &QPushButton::clicked, [=](){
-        stack->setCurrentIndex(0);
-    });
+connect(logoutBtn, &QPushButton::clicked, this, [this]() {
+    stack->setCurrentIndex(0);
+	});
 
     return widget;
 }
