@@ -3,15 +3,15 @@
 //
 
 #include <QLabel>
-#include <qlistwidget.h>
+#include <QListWidget>
 #include <QPushButton>
-#include <qtextedit.h>
+#include <QTextEdit>
 #include <QVBoxLayout>
 #include <QWidget>
 #include "ReviewerWindow.h"
 
 ReviewerWindow::ReviewerWindow(QWidget *parent)
-    :       QMainWindow(parent)
+    :QMainWindow(parent)
 {
 
     resize(900, 600);

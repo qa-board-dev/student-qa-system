@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QFile>
 #include <QApplication>
+#include <qMessageBox>
 #include "AdminWindow.h"
 #include "StudentWindow.h"
 #include "ReviewerWindow.h"
@@ -69,7 +70,7 @@ QWidget* MainWindow::createLoginScreen()
     });
 
     QSettings settings("Admin", "QA");
-    bool adminExists = settings.value("adminCreated", false).toBool();
+    bool adminExists = settings.value("AdminCreated", false).toBool();
 
     if (adminExists) {
         firstUserBtn->hide();
@@ -143,7 +144,9 @@ QWidget* MainWindow::createRoleSelectionScreen()
     });
 
     connect(studentBtn, &QPushButton::clicked, this, [this]() {
-        stack->setCurrentIndex(4);
+        StudentWindow *student = new StudentWindow();
+        student->show();
+        this->hide();
     });
 
     connect(reviewerBtn, &QPushButton::clicked, this, [this]() {
