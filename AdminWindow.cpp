@@ -7,6 +7,7 @@
 #include <QLineEdit>
 #include <QDateEdit>
 #include <QPushButton>
+#include <QMainWindow>
 
 
 AdminWindow::AdminWindow(QWidget *parent)

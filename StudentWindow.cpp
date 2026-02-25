@@ -3,9 +3,9 @@
 //
 
 #include <QLabel>
-#include <qlistwidget.h>
+#include <QListWidget>
 #include <QPushButton>
-#include <qtextedit.h>
+#include <QTextEdit>
 #include <QVBoxLayout>
 #include <QWidget>
 #include "StudentWindow.h"
@@ -36,6 +36,7 @@ StudentWindow::StudentWindow(QWidget *parent)
     layout->addWidget(questionBox);
     layout->addWidget(new QLabel("Related Questions:"));
     layout->addWidget(relatedQuestions);
+    layout->addWidget(new QLabel("Question Answers:"));
     layout->addWidget(answersList);
     layout->addWidget(submitBtn);
     layout->addWidget(logoutBtn);
