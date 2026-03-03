@@ -138,8 +138,15 @@ QWidget* MainWindow::createRoleSelectionScreen()
 
     connect(adminBtn, &QPushButton::clicked, this, [this]() {
         AdminWindow *admin = new AdminWindow();
-		admin->show();
 
+        connect(admin, &AdminWindow::logoutRequest, this, [this, admin]() {
+            this->show();
+            admin->close();
+            admin->deleteLater();
+            stack->setCurrentIndex(0);
+        });
+
+        admin->show();
 		this->hide();
     });
 
