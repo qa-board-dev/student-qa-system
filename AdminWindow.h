@@ -16,6 +16,9 @@ public:
 
 private:
     QStackedWidget *stack;
+
+signals:
+    void logoutRequest();
 };
 
 #endif //USER_UI_ADMINWINDOW_H

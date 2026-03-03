@@ -38,6 +38,7 @@ AdminWindow::AdminWindow(QWidget *parent)
 
     setCentralWidget(widget);
 
-    connect(logoutBtn, &QPushButton::clicked, this, &QWidget::close);
+    //connect(logoutBtn, &QPushButton::clicked, this, [this] {stack->setCurrentIndex(0);});
 
+    connect(logoutBtn, &QPushButton::clicked, this, [this]() {emit logoutRequest();});
 }
