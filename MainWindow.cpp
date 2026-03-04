@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QFile>
 #include <QApplication>
+#include <qMessageBox>
 #include "AdminWindow.h"
 #include "StudentWindow.h"
 #include "ReviewerWindow.h"
@@ -17,7 +18,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    setMinimumSize(900,600); //
+    model.load();
     stack = new QStackedWidget(this);
     setCentralWidget(stack);
     //setStyleSheet("background-color: white");
@@ -61,18 +62,19 @@ QWidget* MainWindow::createLoginScreen()
     layout->addWidget(loginBtn);
     layout->addWidget(firstUserBtn);
 
-    connect(loginBtn, &QPushButton::clicked, this, [this](){
-        stack->setCurrentIndex(2);
+    connect(loginBtn, &QPushButton::clicked, this, [this, username, password](){
+        if (model.authenticate(username->text(), password->text())) {
+            stack->setCurrentIndex(2);
+        } else {
+            QMessageBox::warning(this, "Error", "Login failed!");
+        }
     });
 
     connect(firstUserBtn, &QPushButton::clicked, this, [this]() {
         stack->setCurrentIndex(1);
     });
 
-    QSettings settings("Admin", "QA");
-    bool adminExists = settings.value("adminCreated", false).toBool();
-
-    if (adminExists) {
+    if (!model.firstUser()) {
         firstUserBtn->hide();
     }
 
@@ -104,8 +106,9 @@ QWidget* MainWindow::createFirstUserSetupScreen()
     layout->addWidget(password);
     layout->addWidget(createBtn);
 
-    connect(createBtn, &QPushButton::clicked, this, [this](){
-
+    connect(createBtn, &QPushButton::clicked, this, [this, username, password](){
+        model.addUser(username->text(), password->text(), {"admin"});
+        model.save();
 		QSettings settings("Admin", "QA");
 		settings.setValue("AdminCreated", true);
         QMessageBox::information(this, "Success",
@@ -138,16 +141,22 @@ QWidget* MainWindow::createRoleSelectionScreen()
 
     connect(adminBtn, &QPushButton::clicked, this, [this]() {
         AdminWindow *admin = new AdminWindow();
-		admin->show();
 
+        connect(admin, &AdminWindow::logoutRequest, this, [this, admin]() {
+            this->show();
+            admin->close();
+            admin->deleteLater();
+            stack->setCurrentIndex(0);
+        });
+
+        admin->show();
 		this->hide();
     });
 
     connect(studentBtn, &QPushButton::clicked, this, [this]() {
-        StudentWindow *student = new StudentWindow; //1
-        student->show(); //1
-        this->hide(); // 1
-        stack->setCurrentIndex(4);
+        StudentWindow *student = new StudentWindow();
+        student->show();
+        this->hide();
     });
 
     connect(reviewerBtn, &QPushButton::clicked, this, [this]() {

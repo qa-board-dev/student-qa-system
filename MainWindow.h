@@ -8,6 +8,7 @@
 
 #include <QMainWindow>
 #include <QStackedWidget>
+#include "UserModel.h"
 
 class MainWindow : public QMainWindow
 {
@@ -18,6 +19,7 @@ public:
 
 private:
     QStackedWidget *stack;
+    UserModel model;
 
     QWidget* createLoginScreen();
     QWidget* createFirstUserSetupScreen();
