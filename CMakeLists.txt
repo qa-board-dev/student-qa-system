@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 4.1)
 project(User_UI)
 
+
+
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -16,12 +19,25 @@ find_package(Qt6 COMPONENTS
 
 add_executable(User_UI main.cpp
         MainWindow.h
-        MainWindow.cpp)
+        MainWindow.cpp
+        Post.cpp
+        Post.h
+ReviewerWindow.cpp
+ReviewerWindow.h
+AdminWindow.cpp
+AdminWindow.h
+StudentWindow.h
+StudentWindow.cpp
+
+        )
 target_link_libraries(User_UI
         Qt::Core
         Qt::Gui
         Qt::Widgets
+
 )
+
+
 
 if (WIN32 AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     set(DEBUG_SUFFIX)
@@ -51,3 +67,26 @@ if (WIN32 AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     endforeach (QT_LIB)
 endif ()
+
+include(FetchContent)
+
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/heads/main.zip
+)
+
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+add_executable(PostTest
+        PostTest.cpp
+        Post.cpp
+)
+
+target_link_libraries(PostTest
+        GTest::gtest_main
+)
+
+include(GoogleTest)
+gtest_discover_tests(PostTest)

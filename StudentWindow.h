@@ -7,6 +7,10 @@
 
 #include <QMainWindow>
 #include <QStackedWidget>
+#include <QWidget> //
+#include <QLineEdit> //
+#include <QTextEdit> //
+
 
 class StudentWindow: public QMainWindow {
     Q_OBJECT
@@ -16,5 +20,11 @@ public:
 
 private:
     QStackedWidget *stack;
+    QLineEdit *Author; //
+    QTextEdit *questionBox; //
+
+private slots: //
+    void handleSubmit(); //
+    void handlePrevious(); //
 };
 #endif //USER_UI_STUDENTWINDOW_H

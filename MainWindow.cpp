@@ -17,6 +17,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    setMinimumSize(900,600); //
     stack = new QStackedWidget(this);
     setCentralWidget(stack);
     //setStyleSheet("background-color: white");
@@ -143,6 +144,9 @@ QWidget* MainWindow::createRoleSelectionScreen()
     });
 
     connect(studentBtn, &QPushButton::clicked, this, [this]() {
+        StudentWindow *student = new StudentWindow; //1
+        student->show(); //1
+        this->hide(); // 1
         stack->setCurrentIndex(4);
     });
 
