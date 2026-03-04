@@ -18,6 +18,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    model.load();
     stack = new QStackedWidget(this);
     setCentralWidget(stack);
     //setStyleSheet("background-color: white");
@@ -61,18 +62,19 @@ QWidget* MainWindow::createLoginScreen()
     layout->addWidget(loginBtn);
     layout->addWidget(firstUserBtn);
 
-    connect(loginBtn, &QPushButton::clicked, this, [this](){
-        stack->setCurrentIndex(2);
+    connect(loginBtn, &QPushButton::clicked, this, [this, username, password](){
+        if (model.authenticate(username->text(), password->text())) {
+            stack->setCurrentIndex(2);
+        } else {
+            QMessageBox::warning(this, "Error", "Login failed!");
+        }
     });
 
     connect(firstUserBtn, &QPushButton::clicked, this, [this]() {
         stack->setCurrentIndex(1);
     });
 
-    QSettings settings("Admin", "QA");
-    bool adminExists = settings.value("AdminCreated", false).toBool();
-
-    if (adminExists) {
+    if (!model.firstUser()) {
         firstUserBtn->hide();
     }
 
@@ -104,8 +106,9 @@ QWidget* MainWindow::createFirstUserSetupScreen()
     layout->addWidget(password);
     layout->addWidget(createBtn);
 
-    connect(createBtn, &QPushButton::clicked, this, [this](){
-
+    connect(createBtn, &QPushButton::clicked, this, [this, username, password](){
+        model.addUser(username->text(), password->text(), {"admin"});
+        model.save();
 		QSettings settings("Admin", "QA");
 		settings.setValue("AdminCreated", true);
         QMessageBox::information(this, "Success",
