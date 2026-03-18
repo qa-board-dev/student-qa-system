@@ -10,21 +10,27 @@
 #include <QWidget> //
 #include <QLineEdit> //
 #include <QTextEdit> //
+#include "PostManager.h"
+#include <QListWidget>
 
+
+class MainWindow; //
 
 class StudentWindow: public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit StudentWindow(QWidget *parent = nullptr);
+    explicit StudentWindow(PostManager &pm, MainWindow* parentMain,QWidget *parent = nullptr);
 
 private:
-    QStackedWidget *stack;
+    MainWindow* mainWindow;
     QLineEdit *Author; //
     QTextEdit *questionBox; //
-
+    PostManager &postManager; //
+    QListWidget *viewQuestionBox;//
 private slots: //
     void handleSubmit(); //
-    void handlePrevious(); //
+    void onShowPostsclicked();
+    void handlePrevious();
 };
 #endif //USER_UI_STUDENTWINDOW_H

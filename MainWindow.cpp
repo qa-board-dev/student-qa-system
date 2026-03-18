@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     model.load();
     stack = new QStackedWidget(this);
     setCentralWidget(stack);
+    setMinimumSize(900,600);
     //setStyleSheet("background-color: white");
 
 
@@ -29,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     stack->addWidget(createFirstUserSetupScreen());
     stack->addWidget(createRoleSelectionScreen());
     stack->setCurrentIndex(0);
+
 }
 
 
@@ -154,13 +156,13 @@ QWidget* MainWindow::createRoleSelectionScreen()
     });
 
     connect(studentBtn, &QPushButton::clicked, this, [this]() {
-        StudentWindow *student = new StudentWindow();
+        StudentWindow *student = new StudentWindow(postManager,this); //
         student->show();
         this->hide();
     });
 
     connect(reviewerBtn, &QPushButton::clicked, this, [this]() {
-    ReviewerWindow *reviewer = new ReviewerWindow(this);
+    ReviewerWindow *reviewer = new ReviewerWindow(postManager);
     reviewer->show();
     this->hide();
 	});
@@ -170,4 +172,8 @@ connect(logoutBtn, &QPushButton::clicked, this, [this]() {
 	});
 
     return widget;
+}
+void MainWindow::showRoleSelection() {
+    stack->setCurrentIndex(2);
+    this->show();
 }

@@ -9,6 +9,8 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 #include "UserModel.h"
+#include "PostManager.h"
+#include "StudentWindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -16,6 +18,8 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+    void showRoleSelection();
+
 
 private:
     QStackedWidget *stack;
@@ -24,6 +28,7 @@ private:
     QWidget* createLoginScreen();
     QWidget* createFirstUserSetupScreen();
     QWidget* createRoleSelectionScreen();
+    PostManager postManager;//
 
     void switchScreen(QWidget* screen);
 };
