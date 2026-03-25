@@ -47,3 +47,12 @@ void Post::generateKeywords() { //keyword search
          }
      }
  }
+
+void Post::addAnswer(const Answer &ans) {
+    answers.push_back(ans);
+}
+
+QVector<Answer> Post::getAnswers() const {
+     return answers;
+ }
+

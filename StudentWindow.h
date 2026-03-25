@@ -26,12 +26,17 @@ private:
     MainWindow* mainWindow;
     QLineEdit *Author; //
     QTextEdit *questionBox; //
+    QTextEdit *answerBox;
     PostManager &postManager; //
     QListWidget *viewQuestionBox;//
     QListWidget *relatedQuestions;
+    QListWidget *answers;
+    int selectedQuestion = -1;
 private slots: //
     void handleSubmit(); //
     void onShowPostsclicked();
+    void onQuestionClicked(int row);
+    void handleAnsSubmit();
     void handlePrevious();
     void updateSuggestions();
 };
