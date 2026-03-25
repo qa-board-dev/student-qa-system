@@ -28,9 +28,11 @@ private:
     QTextEdit *questionBox; //
     PostManager &postManager; //
     QListWidget *viewQuestionBox;//
+    QListWidget *relatedQuestions;
 private slots: //
     void handleSubmit(); //
     void onShowPostsclicked();
     void handlePrevious();
+    void updateSuggestions();
 };
 #endif //USER_UI_STUDENTWINDOW_H

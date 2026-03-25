@@ -158,6 +158,7 @@ QWidget* MainWindow::createRoleSelectionScreen()
     connect(studentBtn, &QPushButton::clicked, this, [this]() {
         StudentWindow *student = new StudentWindow(postManager,this); //
         student->show();
+        postManager.load();
         this->hide();
     });
 

@@ -7,20 +7,26 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <QString>
+#include <QStringList>
+
 using namespace std;
 
 
 class Post {
 private:
-    string author;
-    string content;
+    QString author; // QString change
+    QString content; // QString change
     bool approved;
+    QStringList keywords;
+    void generateKeywords();
 public:
-    Post(const string& author, const string &content);
-    string getAuthor() const;
-    string getContent() const;
+    Post(const QString& author, const QString &content); // QString change
+    QString getAuthor() const; //QString change
+    QString getContent() const; // QString change
     bool isApproved() const;
     void approve();
+    QStringList getKeywords() const;
 };
 
 

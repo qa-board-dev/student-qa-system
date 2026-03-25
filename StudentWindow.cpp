@@ -37,7 +37,7 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     viewQuestionBox = new QListWidget(this);//
 
 
-    QListWidget *relatedQuestions = new QListWidget;
+    relatedQuestions = new QListWidget(this);
 
     QListWidget *answersList = new QListWidget;
 
@@ -103,6 +103,7 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     setCentralWidget(widget);
 
 
+    connect(questionBox, &QTextEdit::textChanged, this, &StudentWindow::updateSuggestions);
     connect(ShowPosts, &QPushButton::clicked, this, &StudentWindow::onShowPostsclicked);
     connect(Previous, &QPushButton::clicked, this, &StudentWindow::handlePrevious);
     connect(submitBtn, &QPushButton::clicked,this, &StudentWindow::handleSubmit); //
@@ -110,11 +111,12 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
 
 }
 void StudentWindow::handleSubmit(){ //
-    string author = Author->text().toStdString();
-    string content = questionBox->toPlainText().toStdString();
+    QString author = Author->text();//QString Change
+    QString content = questionBox->toPlainText();
     try {
         Post newPost(author, content);
         postManager.addPost(newPost);
+        postManager.save();
         //qDebug << "Added post. Total Posts:
         Author->clear();
         questionBox->clear();
@@ -137,10 +139,15 @@ void StudentWindow::onShowPostsclicked() {
         QMessageBox::information(this,"Error","No posts available");
     }
     // qDebug()<<"Number of posts:" << posts.size();
-    for (const Post &p : posts) {
-        QString postText = QString::fromStdString(p.getAuthor())+": " + QString::fromStdString(p.getContent());
+    //viewQuestionBox->clear();
+    if (viewQuestionBox->count()>0)
+        viewQuestionBox->clear();
+    else {
+        for (const Post &p : posts) {
+            QString postText = p.getAuthor()+": " + p.getContent(); //QString change
 
-        viewQuestionBox->addItem(postText);
+            viewQuestionBox->addItem(postText);
+        }
     }
 }
 void StudentWindow::handlePrevious() {
@@ -148,4 +155,18 @@ void StudentWindow::handlePrevious() {
         mainWindow->showRoleSelection();
     }
     this->hide();
+}
+void StudentWindow::updateSuggestions() {
+    QString content = questionBox->toPlainText();
+
+    if (content.trimmed().isEmpty()) {
+        relatedQuestions->clear();
+        return;
+    }
+    Post temp("temp_User", content);
+    auto suggestions = postManager.getRelated(temp);
+    relatedQuestions->clear();
+    for (const Post &p : suggestions) {
+        relatedQuestions->addItem(p.getAuthor() + ":" + p.getContent());
+    }
 }

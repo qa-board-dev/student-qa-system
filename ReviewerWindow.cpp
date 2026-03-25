@@ -62,10 +62,11 @@ void ReviewerWindow::onShowPostsClicked() {
         QMessageBox::information(this,"Error","No posts available");
     }
     //qDebug()<<"Number of posts:" << posts.size();
+    reviewBox->clear();
     for (const Post &p : posts) {
         QString postText;
-        postText += "Author: " + QString::fromStdString(p.getAuthor()) + "\n";
-        postText += "Content: " + QString::fromStdString(p.getContent()) + "\n";
+        postText += "Author: " + p.getAuthor() + "\n"; //QString change
+        postText += "Content: " + p.getContent() + "\n"; //QString change
       reviewBox->append(postText);
     }
 }
