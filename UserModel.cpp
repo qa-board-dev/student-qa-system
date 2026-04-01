@@ -3,8 +3,10 @@
 //
 
 #include "UserModel.h"
-
 #include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <qjsonarray.h>
 #include <qjsonobject.h>
 
@@ -19,6 +21,7 @@ bool UserModel::addUser(QString username, QString password, QStringList roles) {
     u1.username = username;
     u1.password = password;
     u1.roles = roles;
+
     users.push_back(u1);
     return true;
 }
@@ -45,7 +48,6 @@ QStringList UserModel::getRoles(QString username) {
     return {};
 }
 
-
 bool UserModel::firstUser() {
     return users.empty();
 }
@@ -64,7 +66,8 @@ void UserModel::save() {
     QJsonDocument doc(userArray);
     QByteArray bytes = doc.toJson();
     QFile file(filepath);
-    file.open(QIODevice::WriteOnly);
+
+    if (!file.open(QIODevice::WriteOnly)) return;
     file.write(bytes);
     file.close();
 }
@@ -78,18 +81,23 @@ void UserModel::load() {
     }
     //qDebug() << "File loaded";
 
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly)) return;
     QByteArray bytes = file.readAll();
+    file.close();
+
     QJsonDocument doc = QJsonDocument::fromJson(bytes);
     QJsonArray userArray = doc.array();
 
+    users.clear();
+
     for (int i = 0; i < userArray.size(); i++) {
         QJsonObject userObject = userArray.at(i).toObject();
-        QJsonArray roles = userObject["roles"].toArray();
+
         User u2;
         u2.username = userObject["username"].toString();
         u2.password = userObject["password"].toString();
 
+        QJsonArray roles = userObject["roles"].toArray();
         for (int j = 0; j < roles.size(); j++) {
             u2.roles.append(roles[j].toString());
         }

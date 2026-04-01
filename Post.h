@@ -12,11 +12,17 @@
 
 using namespace std;
 
+struct Answer {
+    QString author;
+    QString content;
+    bool approved = false;
+};
 
 class Post {
 private:
     QString author; // QString change
     QString content; // QString change
+    QVector<Answer> answers;
     bool approved;
     QStringList keywords;
     void generateKeywords();
@@ -27,7 +33,10 @@ public:
     bool isApproved() const;
     void approve();
     QStringList getKeywords() const;
+    void addAnswer(const Answer& answer);
+    QVector<Answer> getAnswers() const;
 };
+
 
 
 #endif //USER_UI_DISCUSSIONBOARDTEST_H

@@ -29,19 +29,20 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     title->setAlignment(Qt::AlignCenter);
 
     Author = new QLineEdit(this); //
-    Author->setPlaceholderText(("Enter Name Here")); //
+    Author->setPlaceholderText(("Enter Name Here For Answers and Questions")); //
 
     questionBox = new QTextEdit(this);//
     questionBox->setPlaceholderText("Ask your question here: ");
-
     viewQuestionBox = new QListWidget(this);//
-
-
     relatedQuestions = new QListWidget(this);
 
-    QListWidget *answersList = new QListWidget;
-
+    //QListWidget *answersList = new QListWidget;
     QHBoxLayout *buttonlayout = new QHBoxLayout();
+
+    StudentWindow::answers = new QListWidget(this);
+    StudentWindow::answerBox = new QTextEdit(this);
+    answerBox->setPlaceholderText("Type your answer here: ");
+    QPushButton *submitAns = new QPushButton("Submit Answer");
 
     QString pillshape = "QPushButton {"
     " background-color: #3498db;"
@@ -65,9 +66,6 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     logoutBtn->setFixedHeight((40));
     logoutBtn->setStyleSheet(pillshape);
 
-
-
-
     QPushButton *ShowPosts = new QPushButton("Show Posts"); //
     ShowPosts->setFixedWidth((150));
     ShowPosts->setFixedHeight((40));
@@ -80,12 +78,11 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
 
     buttonlayout->addWidget(submitBtn);
     buttonlayout->addSpacing(20);
-    buttonlayout->addWidget(ShowPosts);
-    buttonlayout->addSpacing(20);
+    //buttonlayout->addWidget(ShowPosts);
+    //buttonlayout->addSpacing(20);
     buttonlayout->addWidget(Previous);
     buttonlayout->addSpacing(20);
     buttonlayout->addWidget(logoutBtn);
-
 
     layout->addWidget(title);
     layout->addWidget(new QLabel("Author:"));
@@ -96,18 +93,40 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     layout->addWidget(relatedQuestions);
     layout->addWidget(new QLabel("Questions List:"));
     layout->addWidget(viewQuestionBox);
-    layout->addWidget(new QLabel("Question Answers:"));
-    layout->addWidget(answersList);
+
+    layout->addWidget(new QLabel("Answers:"));
+    layout->addWidget(answers);
+    layout->addWidget(answerBox);
+    layout->addWidget(submitAns);
+
+    //layout->addWidget(new QLabel("Question Answers:"));
+    //layout->addWidget(answersList);
     layout->addLayout(buttonlayout);//
 
     setCentralWidget(widget);
-
 
     connect(questionBox, &QTextEdit::textChanged, this, &StudentWindow::updateSuggestions);
     connect(ShowPosts, &QPushButton::clicked, this, &StudentWindow::onShowPostsclicked);
     connect(Previous, &QPushButton::clicked, this, &StudentWindow::handlePrevious);
     connect(submitBtn, &QPushButton::clicked,this, &StudentWindow::handleSubmit); //
     connect(logoutBtn, &QPushButton::clicked, this, &QWidget::close);
+    connect(viewQuestionBox, &QListWidget::currentRowChanged, this, &StudentWindow::onQuestionClicked);
+    connect(submitAns, &QPushButton::clicked, this, &StudentWindow::handleAnsSubmit);
+
+    //Connecting the show related questions to also show those answers when clicked
+    connect(relatedQuestions, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
+        QString text = item->text();
+        auto &posts = postManager.getPost();
+        for (int i = 0; i < posts.size(); ++i) {
+            if ((posts[i].getAuthor() + ":" + posts[i].getContent() == text)) {
+                viewQuestionBox->setCurrentRow(i);
+                onQuestionClicked(i);
+                break;
+            }
+        }
+    });
+
+    onShowPostsclicked();
 
 }
 void StudentWindow::handleSubmit(){ //
@@ -125,31 +144,20 @@ void StudentWindow::handleSubmit(){ //
     catch (invalid_argument&) {
         QMessageBox::information(this, "Error","One or more boxes is empty ");
     }
+
+    onShowPostsclicked();
 }
 
 void StudentWindow::onShowPostsclicked() {
-    //qDebug() << "ShowPosts clicked!";
-    //if (!viewQuestionBox) {
-       // qDebug()<< "reviewBox is null!";
-       // return;
-   // }
-    // reviewBox->clear();
     const auto &posts = postManager.getPost();
-    if (posts.size()==0) {
-        QMessageBox::information(this,"Error","No posts available");
-    }
-    // qDebug()<<"Number of posts:" << posts.size();
-    //viewQuestionBox->clear();
-    if (viewQuestionBox->count()>0)
-        viewQuestionBox->clear();
-    else {
-        for (const Post &p : posts) {
-            QString postText = p.getAuthor()+": " + p.getContent(); //QString change
+    viewQuestionBox->clear();
 
-            viewQuestionBox->addItem(postText);
-        }
+    for (const Post &p : posts) {
+        QString postText = p.getAuthor()+": " + p.getContent(); //QString change
+        viewQuestionBox->addItem(postText);
     }
 }
+
 void StudentWindow::handlePrevious() {
     if (mainWindow) {
         mainWindow->showRoleSelection();
@@ -169,4 +177,44 @@ void StudentWindow::updateSuggestions() {
     for (const Post &p : suggestions) {
         relatedQuestions->addItem(p.getAuthor() + ":" + p.getContent());
     }
+}
+
+void StudentWindow::onQuestionClicked(int row) {
+    selectedQuestion = row;
+    answers->clear();
+
+    if (selectedQuestion < 0) {
+        return;
+    }
+
+    auto &posts = postManager.getPost();
+
+    for (const Answer& a : posts[row].getAnswers()) {
+        answers->addItem(a.author + ": " + a.content);
+    }
+}
+
+void StudentWindow::handleAnsSubmit() {
+    if (selectedQuestion < 0) {
+        QMessageBox::information(this,"Error","Select a question first");
+        return;
+    }
+
+    QString answerText = answerBox->toPlainText();
+    QString author = Author->text();
+
+    if (answerText.isEmpty() || author.isEmpty()) {
+        QMessageBox::information(this,"Error","Username or Answer missing");
+        return;
+    }
+
+    Answer ans;
+    ans.author = author;
+    ans.content = answerText;
+
+    postManager.getPost()[selectedQuestion].addAnswer(ans);
+    postManager.save();
+    answerBox->clear();
+    onQuestionClicked(selectedQuestion);
+    onShowPostsclicked();
 }

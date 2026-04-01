@@ -29,10 +29,19 @@ void PostManager::save()
       QJsonObject obj;
       obj["author"] = p.getAuthor();
       obj["content"] = p.getContent();
+
+      QJsonArray answersArray;
+      for (const Answer& ans : p.getAnswers()) {
+         QJsonObject answerObject;
+         answerObject["author"] = ans.author;
+         answerObject["content"] = ans.content;
+         answersArray.append(answerObject);
+      }
+      obj["answers"] = answersArray;
       array.append(obj);
    }
    QJsonDocument doc(array);
-  QFile file(filepath);
+   QFile file(filepath);
    if (!file.open(QIODevice::WriteOnly)) return;
 
    file.write(doc.toJson());
@@ -54,6 +63,15 @@ QFile file(filepath);
       QString content = obj["content"].toString();
 
       posts.emplace_back(author,content);
+
+      QJsonArray answersArray = obj["answers"].toArray();
+      for (int j = 0; j < answersArray.size(); j++) {
+         QJsonObject answerObject = answersArray[j].toObject();
+         Answer ans;
+         ans.author = answerObject["author"].toString();
+         ans.content = answerObject["content"].toString();
+         posts.back().addAnswer(ans);
+      }
    }
    file.close();
 }
