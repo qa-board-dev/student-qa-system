@@ -28,7 +28,15 @@ private:
     QWidget* createLoginScreen();
     QWidget* createFirstUserSetupScreen();
     QWidget* createRoleSelectionScreen();
+    QWidget* createSignupScreen();
+    bool isValidInviteCode(const QString& code);
+
     PostManager postManager;//
+
+    QString tempUsername;
+    QString tempPassword;
+    QString tempInviteCode;
+    bool signupMode = false;
 
     void switchScreen(QWidget* screen);
 };
