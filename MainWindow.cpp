@@ -37,11 +37,33 @@ void MainWindow::switchScreen(QWidget *screen)
 QWidget* MainWindow::createLoginScreen()
 {
     QWidget *widget = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(widget);
+    QVBoxLayout *mainLayout = new QVBoxLayout(widget);
+    widget->setStyleSheet("background-color: #d3d3d3");
 
-    QLabel *title = new QLabel("Student Q&A System - Login");
+    QWidget* container = new QWidget;
+    QVBoxLayout* outerLayout = new QVBoxLayout(container);
+    outerLayout->setAlignment(Qt::AlignCenter);
+
+    QWidget* card = new QWidget;
+    card->setFixedWidth(300);
+    card->setStyleSheet(R"(
+        QWidget {
+            background-color: white;
+            border-radius: 10px;
+        }
+        )");
+
+    QVBoxLayout* cardLayout = new QVBoxLayout(card);
+    cardLayout->setSpacing(15);
+    cardLayout->setContentsMargins(30, 30, 30, 30);
+    cardLayout->addSpacing(10);
+
+    outerLayout->addWidget(card);
+    mainLayout->addWidget(container);
+
+    QLabel *title = new QLabel("Student Q&A System\n Login");
     title->setAlignment(Qt::AlignCenter);
-    title->setStyleSheet("font-size: 20px; font-weight: bold;");
+    title->setStyleSheet("font-size: 20px; font-weight: bold; color: #000000;");
 
     QLineEdit *username = new QLineEdit;
     username->setPlaceholderText("Username");
@@ -51,15 +73,47 @@ QWidget* MainWindow::createLoginScreen()
     password->setEchoMode(QLineEdit::Password);
 
     QPushButton *loginBtn = new QPushButton("Login");
-    QPushButton *firstUserBtn = new QPushButton("First User Setup");
-    QPushButton *signupBtn = new QPushButton("Sign Up");
+    loginBtn->setStyleSheet("background-color: #0078d7; color: white; padding: 10px; border-radius: 6px;");
 
-    layout->addWidget(title);
-    layout->addWidget(username);
-    layout->addWidget(password);
-    layout->addWidget(loginBtn);
-    layout->addWidget(firstUserBtn);
-    layout->addWidget(signupBtn);
+    QPushButton *firstUserBtn = new QPushButton("First User Setup");
+
+    QPushButton *signupBtn = new QPushButton("Sign Up");
+    signupBtn->setStyleSheet(R"(
+        QPushButton {
+            background: transparent;
+            color: #0078d7;
+            border: none;
+        }
+        QPushButton:hover {
+            text-decoration: underline;
+        }
+    )");
+
+    cardLayout->addWidget(title);
+    cardLayout->addWidget(username);
+    cardLayout->addWidget(password);
+    cardLayout->addWidget(loginBtn);
+    cardLayout->addWidget(firstUserBtn);
+    cardLayout->addWidget(signupBtn);
+
+    QString inputStyle = R"(
+        QLineEdit {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            color: #000000;
+            background-color: #fafafa;
+        }
+        QLineEdit:focus {
+            border: 1px solid #0078d7;
+        }
+        QLineEdit::placeholder {
+            color: #888;
+        }
+    )";
+
+    username->setStyleSheet(inputStyle);
+    password->setStyleSheet(inputStyle);
 
     connect(loginBtn, &QPushButton::clicked, this, [this, username, password](){
         if (model.authenticate(username->text(), password->text())) {
@@ -93,11 +147,33 @@ QWidget* MainWindow::createLoginScreen()
 QWidget* MainWindow::createFirstUserSetupScreen()
 {
     QWidget *widget = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(widget);
+    QVBoxLayout *mainLayout = new QVBoxLayout(widget);
+    widget->setStyleSheet("background-color: #d3d3d3;");
+
+    QWidget* container = new QWidget;
+    QVBoxLayout* outerLayout = new QVBoxLayout(container);
+    outerLayout->setAlignment(Qt::AlignCenter);
+
+    QWidget* card = new QWidget;
+    card->setFixedWidth(300);
+    card->setStyleSheet(R"(
+        QWidget {
+            background-color: white;
+            border-radius: 10px;
+        }
+        )");
+
+    QVBoxLayout* cardLayout = new QVBoxLayout(card);
+    cardLayout->setSpacing(15);
+    cardLayout->setContentsMargins(30, 30, 30, 30);
+    cardLayout->addSpacing(10);
+
+    outerLayout->addWidget(card);
+    mainLayout->addWidget(container);
 
     QLabel *title = new QLabel("First User Setup (Admin)");
     title->setAlignment(Qt::AlignCenter);
-    title->setStyleSheet("font-size: 18px; font-weight: bold;");
+    title->setStyleSheet("font-size: 18px; font-weight: bold; color: #000000;");
 
     QLineEdit *username = new QLineEdit;
     username->setPlaceholderText("Admin Username");
@@ -107,12 +183,30 @@ QWidget* MainWindow::createFirstUserSetupScreen()
     password->setEchoMode(QLineEdit::Password);
 
     QPushButton *createBtn = new QPushButton("Create Admin Account");
+    createBtn->setStyleSheet("background-color: #0078d7; color: white; padding: 10px; border-radius: 6px;");
 
+    cardLayout->addWidget(title);
+    cardLayout->addWidget(username);
+    cardLayout->addWidget(password);
+    cardLayout->addWidget(createBtn);
 
-    layout->addWidget(title);
-    layout->addWidget(username);
-    layout->addWidget(password);
-    layout->addWidget(createBtn);
+    QString inputStyle = R"(
+        QLineEdit {
+            padding: 8px;
+            border: 1px solid #ccc;
+            color: #000000;
+            background-color: #fafafa;
+        }
+        QLineEdit:focus {
+            border: 1px solid #0078d7;
+        }
+        QLineEdit::placeholder {
+            color: #888;
+        }
+    )";
+
+    username->setStyleSheet(inputStyle);
+    password->setStyleSheet(inputStyle);
 
     connect(createBtn, &QPushButton::clicked, this, [this, username, password](){
         model.addUser(username->text(), password->text(), {"admin"});
@@ -131,6 +225,7 @@ QWidget* MainWindow::createSignupScreen()
 {
     QWidget *widget = new QWidget;
     QVBoxLayout *mainLayout = new QVBoxLayout(widget);
+    widget->setStyleSheet("background-color: #d3d3d3");
 
     QWidget* container = new QWidget;
     QVBoxLayout* outerLayout = new QVBoxLayout(container);
@@ -232,6 +327,10 @@ QWidget* MainWindow::createSignupScreen()
         signupMode = true;
         stack->setCurrentIndex(2); // go to role selection
     });
+    if (signupMode)
+    {
+        title->setText("Choose Role for New Account");
+    }
     connect(backButton, &QPushButton::clicked, this, [this]()
             {
                 stack->setCurrentIndex(0);
@@ -243,24 +342,73 @@ QWidget* MainWindow::createSignupScreen()
 QWidget* MainWindow::createRoleSelectionScreen()
 {
     QWidget *widget = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(widget);
+    QVBoxLayout *mainLayout = new QVBoxLayout(widget);
+    widget->setStyleSheet("background-color: #d3d3d3;");
+
+    QWidget* container = new QWidget;
+    QVBoxLayout *outerLayout = new QVBoxLayout(container);
+    outerLayout->setAlignment(Qt::AlignCenter);
+
+    QWidget* card = new QWidget;
+    QVBoxLayout  *cardLayout = new QVBoxLayout(card);
+    card->setFixedWidth(300);
+    card->setStyleSheet(R"(
+        QWidget {
+            background-color: white;
+            border-radius: 10px;
+        }
+        )");
+    cardLayout->setSpacing(15);
+    cardLayout->setContentsMargins(30, 30, 30, 30);
+    cardLayout->addSpacing(10);
+    cardLayout->setSpacing(20);
+
+    outerLayout->addWidget(card);
+    mainLayout->addWidget(container);
 
     QLabel *title = new QLabel("Select Role");
     title->setAlignment(Qt::AlignCenter);
+    title->setStyleSheet("font-size: 22px; font-weight: bold; color: #000000;");
 
     QPushButton *adminBtn = new QPushButton("Admin");
+    adminBtn->setStyleSheet("background-color: #0078d7; color:white; padding:10px; border-radius:6px;");
     QPushButton *studentBtn = new QPushButton("Student");
+    studentBtn->setStyleSheet("background-color: #0078d7; color:white; padding:10px; border-radius:6px;");
     QPushButton *reviewerBtn = new QPushButton("Reviewer");
+    reviewerBtn->setStyleSheet("background-color: #0078d7; color:white; padding:10px; border-radius:6px;");
     QPushButton *logoutBtn = new QPushButton("Logout");
+    logoutBtn->setStyleSheet(R"(
+        QPushButton {
+            background: transparent;
+            color: #0078d7;
+            border: none;
+        }
+        QPushButton:hover {
+            text-decoration: underline;
+        }
+        )");
 
-    layout->addWidget(title);
-    layout->addWidget(adminBtn);
-    layout->addWidget(studentBtn);
-    layout->addWidget(reviewerBtn);
-    layout->addWidget(logoutBtn);
+    cardLayout->addWidget(title);
+    cardLayout->addWidget(adminBtn);
+    cardLayout->addWidget(studentBtn);
+    cardLayout->addWidget(reviewerBtn);
+    cardLayout->addWidget(logoutBtn);
+
+    QString inputStyle = R"(
+        QLineEdit {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        color: #00000;
+            background-color: #fafafa;
+        }
+        QLineEdit:focus {
+            border: 1px solid #0078d7;
+        }
+        )";
 
     connect(adminBtn, &QPushButton::clicked, this, [this]() {
-        AdminWindow *admin = new AdminWindow();
+        AdminWindow *admin = new AdminWindow(this);
 
         connect(admin, &AdminWindow::logoutRequest, this, [this, admin]() {
             this->show();
@@ -312,7 +460,7 @@ QWidget* MainWindow::createRoleSelectionScreen()
             return;
         }
 
-        ReviewerWindow *reviewer = new ReviewerWindow(postManager);
+        ReviewerWindow *reviewer = new ReviewerWindow(postManager, this);
         reviewer->show();
         this->hide();
 	});
