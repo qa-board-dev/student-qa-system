@@ -76,6 +76,16 @@ QWidget* MainWindow::createLoginScreen()
     loginBtn->setStyleSheet("background-color: #0078d7; color: white; padding: 10px; border-radius: 6px;");
 
     QPushButton *firstUserBtn = new QPushButton("First User Setup");
+    firstUserBtn->setStyleSheet(R"(
+        QPushButton {
+            background: transparent;
+            color: #0078d7;
+            border: none;
+        }
+        QPushButton:hover {
+            text-decoration: underline;
+        }
+    )");
 
     QPushButton *signupBtn = new QPushButton("Sign Up");
     signupBtn->setStyleSheet(R"(
