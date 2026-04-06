@@ -9,15 +9,61 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include "ReviewerWindow.h"
+#include "PostWidget.h"
+#include "MainWindow.h"
 
-#include <qmessagebox.h>
-
-ReviewerWindow::ReviewerWindow(PostManager &pm, QWidget *parent)
-    :QMainWindow(parent) , postManager(pm) //
+ReviewerWindow::ReviewerWindow(PostManager &pm,MainWindow* parentMain, QWidget *parent)
+    :QMainWindow(parent) , postManager(pm), mainWindow(parentMain) //
 {
-
     resize(900, 600);
+//qDebug() << "displayPosts called";
+    QWidget *container = new QWidget();
+    QVBoxLayout *mainLayout = new QVBoxLayout(container);
+    postsLayout = new QVBoxLayout();
+    mainLayout->addLayout(postsLayout);
+    mainLayout->addStretch();
+    QHBoxLayout *bottomLayout = new QHBoxLayout();
+    bottomLayout->addStretch();
+    QPushButton *Previous = new QPushButton("Previous");
+    QString pillstyle = "QPushButton {"
+    " background-color: #3498db;"
+    " color: white;"
+    " border-radius: 20px;"
+    " padding: 8px 16px;"
+    " font-size: 14px;"
+    "}"
+    "QPushButton:hover {"
+    " background-color:#1f618d;"
+    "}";
+    Previous->setStyleSheet((pillstyle));
+    Previous->setFixedWidth((150));
+    Previous->setFixedHeight((40));
+    bottomLayout->addWidget(Previous);
+    mainLayout->addLayout(bottomLayout);
+    setCentralWidget((container));
+    displayPosts();
+    connect(Previous, &QPushButton::clicked, this, &ReviewerWindow::handlePrevious);
+}
 
+void ReviewerWindow::displayPosts() {
+    QLayoutItem *item;
+    while ((item = postsLayout->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
+   //qDebug() << "Post count: " << postManager.getPost().size();
+    for (const Post &p : postManager.getPost()) {
+        PostWidget *widget = new PostWidget(p.getAuthor(),p.getContent());
+        postsLayout->addWidget(widget);
+    }
+}
+void ReviewerWindow::handlePrevious() {
+    if (mainWindow) {
+        mainWindow->showRoleSelection();
+    }
+    this->hide();
+}
+/*
     QWidget *widget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout(widget);
 
@@ -61,7 +107,6 @@ void ReviewerWindow::onShowPostsClicked() {
     if (posts.size()==0) {
         QMessageBox::information(this,"Error","No posts available");
     }
-    //qDebug()<<"Number of posts:" << posts.size();
     reviewBox->clear();
     for (const Post &p : posts) {
         QString postText;
@@ -70,3 +115,4 @@ void ReviewerWindow::onShowPostsClicked() {
       reviewBox->append(postText);
     }
 }
+*/
