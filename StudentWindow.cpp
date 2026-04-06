@@ -23,12 +23,31 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     resize(900, 600);
 
     QWidget *widget = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(widget);
+    QVBoxLayout *mainLayout = new QVBoxLayout(widget);
+    widget->setStyleSheet("background-color: #d3d3d3;");
+
+    QWidget* container = new QWidget;
+    QVBoxLayout* outerLayout = new QVBoxLayout(container);
+
+    QWidget* card = new QWidget;
+    //card->setFixedWidth(850);
+    card->setStyleSheet(R"(
+        QWidget {
+            background-color: white;
+            border-radius: 15px;
+        }
+        )");
+
+    QVBoxLayout* cardLayout = new QVBoxLayout(card);
+
+    outerLayout->addWidget(card);
+    mainLayout->addWidget(container);
 
     QLabel *title = new QLabel("Student Dashboard");
     title->setAlignment(Qt::AlignCenter);
+    title->setStyleSheet("font-size: 20px; font-weight: bold; color: #000000;");
 
-    Author = new QLineEdit(this); //
+    Author = new QLineEdit(this);
     Author->setPlaceholderText(("Enter Name Here For Answers and Questions")); //
 
     questionBox = new QTextEdit(this);//
@@ -84,25 +103,41 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     buttonlayout->addSpacing(20);
     buttonlayout->addWidget(logoutBtn);
 
-    layout->addWidget(title);
-    layout->addWidget(new QLabel("Author:"));
-    layout->addWidget(Author); //
-    layout->addWidget(new QLabel("Your Question:"));
-    layout->addWidget(questionBox);
-    layout->addWidget(new QLabel("Related Questions:"));
-    layout->addWidget(relatedQuestions);
-    layout->addWidget(new QLabel("Questions List:"));
-    layout->addWidget(viewQuestionBox);
+    cardLayout->addWidget(title);
+    cardLayout->addWidget(new QLabel("Author:"));
+    cardLayout->addWidget(Author); //
+    cardLayout->addWidget(new QLabel("Your Question:"));
+    cardLayout->addWidget(questionBox);
+    cardLayout->addWidget(new QLabel("Related Questions:"));
+    cardLayout->addWidget(relatedQuestions);
+    cardLayout->addWidget(new QLabel("Questions List:"));
+    cardLayout->addWidget(viewQuestionBox);
 
-    layout->addWidget(new QLabel("Answers:"));
-    layout->addWidget(answers);
-    layout->addWidget(answerBox);
-    layout->addWidget(submitAns);
+    cardLayout->addWidget(new QLabel("Answers:"));
+    cardLayout->addWidget(answers);
+    cardLayout->addWidget(answerBox);
+    cardLayout->addWidget(submitAns);
 
     //layout->addWidget(new QLabel("Question Answers:"));
     //layout->addWidget(answersList);
-    layout->addLayout(buttonlayout);//
+    cardLayout->addLayout(buttonlayout);//
 
+    QString inputStyle = R"(
+        QLineEdit {
+            padding: 8px;
+            border: 1px solid #ccc;
+            color: #000000;
+            background-color: #fafafa;
+        }
+        QLineEdit:focus {
+            border: 1px solid #0078d7;
+        }
+        QLineEdit::placeholder {
+            color: #888;
+        }
+    )";
+
+    Author->setStyleSheet(inputStyle);
     setCentralWidget(widget);
 
     connect(questionBox, &QTextEdit::textChanged, this, &StudentWindow::updateSuggestions);
