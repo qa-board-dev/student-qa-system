@@ -29,10 +29,11 @@ private:
     PostManager &postManager; //
     //QTextEdit *reviewBox; //
     QVBoxLayout *postsLayout;
-    void displayPosts();
+    void displayPosts(const QString &filter);
 
 private slots:
     void handlePrevious();
+    void onFilterChanged(const QString &text);
 };
 
 #endif //USER_UI_REVIEWERWINDOW_H

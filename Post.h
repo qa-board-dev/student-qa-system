@@ -35,6 +35,7 @@ public:
     QStringList getKeywords() const;
     void addAnswer(const Answer& answer);
     QVector<Answer> getAnswers() const;
+
 };
 
 

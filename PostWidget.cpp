@@ -3,18 +3,24 @@
 //
 #include "PostWidget.h"
 
-PostWidget::PostWidget(const QString &author,const QString &content, QWidget *parent): QWidget(parent), likes(0), dislikes(0) {
+PostWidget::PostWidget(const QString &author,const QString &content,const QVector<Answer> &answers, QWidget *parent): QWidget(parent), isLiked(false), isDisliked(false) {
     authorLabel = new QLabel("Author: "+ author);
-    authorLabel->setStyleSheet("font-weight:bold;"
-        );
+    QFont authorFont;
+    authorFont.setBold(true);
+    authorFont.setPointSize(12);
+    authorLabel->setFont(authorFont);
+
     questionLabel = new QLabel("Question:\n");
-    questionLabel->setStyleSheet("font-weight:bold;"
-        );
+    QFont questionFont;
+    questionFont.setBold(true);
+    questionFont.setPointSize(12);
+    questionLabel->setFont(questionFont);
+
     contentLabel = new QLabel(content);
     contentLabel->setWordWrap(true);
 
-    likeButton = new QPushButton("\U0001F44D 0");
-    dislikeButton = new QPushButton("\U0001F44E 0");
+    likeButton = new QPushButton("\U0001F44D");
+    dislikeButton = new QPushButton("\U0001F44E");
     likeButton->setFixedSize(60,25);
     dislikeButton->setFixedSize(60,25);
 
@@ -28,6 +34,14 @@ PostWidget::PostWidget(const QString &author,const QString &content, QWidget *pa
     layout->addWidget(authorLabel);
     layout->addWidget(questionLabel);
     layout->addWidget(contentLabel);
+    for (const Answer &ans : answers) {
+        QString text = "<b>Answer by " + ans.author + ":</b><br>" + ans.content;
+        QLabel *answerLabel = new QLabel(text);
+        answerLabel->setWordWrap(true);
+
+        layout->addWidget(answerLabel);
+    }
+
     layout->addLayout(buttonLayout);
 
 
@@ -36,6 +50,7 @@ color: #222222;
 border: 1px solid #ddd;
 border-radius: 10px;
         )");
+
     dislikeButton->setStyleSheet(R"(background-color: #ffffff;
 color: #222222;
 border: 1px solid #ddd;
@@ -52,12 +67,23 @@ border-radius: 10px;
 }
 
     void PostWidget::handleLike(){
-        likes++;
-        likeButton->setText("\U0001F44D" + QString::number(likes));
+    isLiked = !isLiked;
+    if (isLiked) {
+            likeButton->setStyleSheet("background-color: green; color:white;");
+        }
+    else {
+        likeButton->setStyleSheet("");
+    }
     }
 void PostWidget::handleDislike(){
-    dislikes++;
-    dislikeButton->setText("\U0001F44E" + QString::number(dislikes));
+    isDisliked = !isDisliked;
+    if (isDisliked) {
+        dislikeButton->setStyleSheet("background-color: green; color:white;");
+    }
+    else {
+        dislikeButton->setStyleSheet("");
+    }
+
 }
 
 
