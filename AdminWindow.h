@@ -16,6 +16,7 @@ public:
 
 private:
     QStackedWidget *stack;
+    QString generateInvitation(const QDate& expirationDate);
 
 signals:
     void logoutRequest();
