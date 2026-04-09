@@ -70,18 +70,22 @@ border-radius: 10px;
     isLiked = !isLiked;
     if (isLiked) {
             likeButton->setStyleSheet("background-color: green; color:white;");
+        dislikeButton->setEnabled(false);
         }
     else {
         likeButton->setStyleSheet("");
+        dislikeButton->setEnabled(true);
     }
     }
 void PostWidget::handleDislike(){
     isDisliked = !isDisliked;
     if (isDisliked) {
         dislikeButton->setStyleSheet("background-color: green; color:white;");
+        likeButton->setEnabled(false);
     }
     else {
         dislikeButton->setStyleSheet("");
+        likeButton->setEnabled(true);
     }
 
 }
