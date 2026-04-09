@@ -469,7 +469,7 @@ QWidget* MainWindow::createRoleSelectionScreen()
             stack->setCurrentIndex(0);
             return;
         }
-
+        postManager.load();
         ReviewerWindow *reviewer = new ReviewerWindow(postManager, this);
         reviewer->show();
         this->hide();

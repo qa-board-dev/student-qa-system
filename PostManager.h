@@ -20,6 +20,7 @@ public:
 private:
     vector<Post> posts;
     QString filepath = "posts.json";
+
 };
 
 

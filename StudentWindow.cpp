@@ -178,9 +178,10 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     onShowPostsclicked();
 
 }
-void StudentWindow::handleSubmit(){ //
-    QString author = Author->text();//QString Change
+void StudentWindow::handleSubmit(){
+    QString author = Author->text();
     QString content = questionBox->toPlainText();
+
     try {
         Post newPost(author, content);
         postManager.addPost(newPost);

@@ -16,6 +16,7 @@ using namespace std;
       throw invalid_argument("Post content cannot be empty");
   }
      generateKeywords();// keyword search
+
 }
 QString Post::getAuthor() const{
     return author;
@@ -23,12 +24,14 @@ QString Post::getAuthor() const{
 QString Post::getContent() const{
     return content;
 }
+
 bool Post::isApproved() const {
      return approved;
  }
 void Post::approve() {
      approved = true;
  }
+
 QStringList Post::getKeywords() const { //keyword search
      return keywords;
  }
