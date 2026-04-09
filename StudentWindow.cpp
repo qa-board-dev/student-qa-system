@@ -36,6 +36,9 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
             background-color: white;
             border-radius: 15px;
         }
+        QLabel {
+            color: #000000;
+        }
         )");
 
     QVBoxLayout* cardLayout = new QVBoxLayout(card);
@@ -51,7 +54,7 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     Author->setPlaceholderText(("Enter Name Here For Answers and Questions")); //
 
     questionBox = new QTextEdit(this);//
-    questionBox->setPlaceholderText("Ask your question here: ");
+    questionBox->setPlaceholderText(("Ask your question here: "));
     viewQuestionBox = new QListWidget(this);//
     relatedQuestions = new QListWidget(this);
 
@@ -104,7 +107,8 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     buttonlayout->addWidget(logoutBtn);
 
     cardLayout->addWidget(title);
-    cardLayout->addWidget(new QLabel("Author:"));
+    QLabel *AuthorTitle = new QLabel("Author");
+    cardLayout->addWidget(AuthorTitle);
     cardLayout->addWidget(Author); //
     cardLayout->addWidget(new QLabel("Your Question:"));
     cardLayout->addWidget(questionBox);
@@ -123,7 +127,7 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     cardLayout->addLayout(buttonlayout);//
 
     QString inputStyle = R"(
-        QLineEdit {
+        QLineEdit, QTextEdit, QListWidget{
             padding: 8px;
             border: 1px solid #ccc;
             color: #000000;
@@ -138,6 +142,16 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     )";
 
     Author->setStyleSheet(inputStyle);
+    setCentralWidget(widget);
+    questionBox->setStyleSheet(inputStyle);
+    setCentralWidget(widget);
+    answerBox->setStyleSheet(inputStyle);
+    setCentralWidget(widget);
+    viewQuestionBox->setStyleSheet(inputStyle);
+    setCentralWidget(widget);
+    relatedQuestions->setStyleSheet(inputStyle);
+    setCentralWidget(widget);
+    answers->setStyleSheet(inputStyle);
     setCentralWidget(widget);
 
     connect(questionBox, &QTextEdit::textChanged, this, &StudentWindow::updateSuggestions);
