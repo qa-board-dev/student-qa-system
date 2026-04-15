@@ -19,7 +19,7 @@ class ReviewerWindow: public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit ReviewerWindow(PostManager &pm, MainWindow* parentMain, QWidget *parent = nullptr);
+    explicit ReviewerWindow(PostManager &pm, const QString &username, MainWindow* parentMain, QWidget *parent = nullptr);
 private slots:
     //void onShowPostsClicked();
 
@@ -29,6 +29,7 @@ private:
     PostManager &postManager; //
     //QTextEdit *reviewBox; //
     QVBoxLayout *postsLayout;
+    QString tempUsername;
     void displayPosts(const QString &filter);
 
 private slots:

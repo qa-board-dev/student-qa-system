@@ -1,7 +1,6 @@
 //
 // Created by axelpc on 2/11/2026.
 //
-
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
@@ -15,11 +14,11 @@ using namespace std;
 #include <string>
 #include "Post.h"
 #include <QMessagebox.h>
+#include <QSplitter>
+#include <QFrame>
 
-
-
-StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *parent)
-    :QMainWindow(parent), postManager(pm), mainWindow(parentMain) {
+StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindow* parentMain, QWidget *parent)
+    :QMainWindow(parent), postManager(pm), mainWindow(parentMain), tempUsername(username) {
     resize(900, 600);
 
     QWidget *widget = new QWidget;
@@ -30,7 +29,6 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     QVBoxLayout* outerLayout = new QVBoxLayout(container);
 
     QWidget* card = new QWidget;
-    //card->setFixedWidth(850);
     card->setStyleSheet(R"(
         QWidget {
             background-color: white;
@@ -39,32 +37,66 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
         QLabel {
             color: #000000;
         }
-        )");
+    )");
 
     QVBoxLayout* cardLayout = new QVBoxLayout(card);
+    cardLayout->setSpacing(15);
+    cardLayout->setContentsMargins(20, 20, 20, 20);
 
     outerLayout->addWidget(card);
     mainLayout->addWidget(container);
 
+    QWidget *header = new QWidget;
+    header->setStyleSheet(R"(
+        QWidget {
+            background-color: #f5f7fa;
+            border-radius: 10px;
+            padding: 8px;
+        }
+    )");
+
+    QHBoxLayout *headerLayout = new QHBoxLayout(header);
+
     QLabel *title = new QLabel("Student Dashboard");
-    title->setAlignment(Qt::AlignCenter);
     title->setStyleSheet("font-size: 20px; font-weight: bold; color: #000000;");
 
-    Author = new QLineEdit(this);
-    Author->setPlaceholderText(("Enter Name Here For Answers and Questions")); //
+    QLabel *userLabel = new QLabel(tempUsername);
+    userLabel->setStyleSheet(R"(
+        QLabel{
+            background-color:#e8f0fe;
+            color:#1f618d;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+    )");
 
-    questionBox = new QTextEdit(this);//
-    questionBox->setPlaceholderText(("Ask your question here: "));
-    viewQuestionBox = new QListWidget(this);//
+    QLabel *loggedText = new QLabel("Logged in as");
+    loggedText->setStyleSheet("color: #555; font-size: 12px;");
+
+    headerLayout->addWidget(title);
+    headerLayout->addStretch();
+    headerLayout->addWidget(loggedText);
+    headerLayout->addWidget(userLabel);
+
+    cardLayout->addWidget(header);
+
+    QFrame *line = new QFrame;
+    line->setFrameShape(QFrame::HLine);
+    line->setStyleSheet("color: #ddd;");
+    cardLayout->addWidget(line);
+
+    questionBox = new QTextEdit(this);
+    questionBox->setPlaceholderText("Ask your question here: ");
+    viewQuestionBox = new QListWidget(this);
     relatedQuestions = new QListWidget(this);
 
-    //QListWidget *answersList = new QListWidget;
     QHBoxLayout *buttonlayout = new QHBoxLayout();
+    buttonlayout->setSpacing(20);
 
-    StudentWindow::answers = new QListWidget(this);
-    StudentWindow::answerBox = new QTextEdit(this);
+    answers = new QListWidget(this);
+    answerBox = new QTextEdit(this);
     answerBox->setPlaceholderText("Type your answer here: ");
-    QPushButton *submitAns = new QPushButton("Submit Answer");
 
     QString pillshape = "QPushButton {"
     " background-color: #3498db;"
@@ -77,92 +109,93 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     " background-color:#1f618d;"
     "}";
 
+    QPushButton *submitAns = new QPushButton("Submit Answer");
+    submitAns->setFixedWidth(150);
+    submitAns->setFixedHeight(40);
+    submitAns->setStyleSheet(pillshape);
 
     QPushButton *submitBtn = new QPushButton("Submit Question");
-    submitBtn->setFixedWidth((150));
-    submitBtn->setFixedHeight((40));
+    submitBtn->setFixedWidth(150);
+    submitBtn->setFixedHeight(40);
     submitBtn->setStyleSheet(pillshape);
 
     QPushButton *logoutBtn = new QPushButton("Logout");
-    logoutBtn->setFixedWidth((150));
-    logoutBtn->setFixedHeight((40));
+    logoutBtn->setFixedWidth(150);
+    logoutBtn->setFixedHeight(40);
     logoutBtn->setStyleSheet(pillshape);
 
-    QPushButton *ShowPosts = new QPushButton("Show Posts"); //
-    ShowPosts->setFixedWidth((150));
-    ShowPosts->setFixedHeight((40));
-    ShowPosts->setStyleSheet(pillshape);
-
-    QPushButton *Previous = new QPushButton("Previous"); //
-    Previous->setFixedWidth((150));
-    Previous->setFixedHeight((40));
+    QPushButton *Previous = new QPushButton("Previous");
+    Previous->setFixedWidth(150);
+    Previous->setFixedHeight(40);
     Previous->setStyleSheet(pillshape);
 
+    buttonlayout->addStretch();
     buttonlayout->addWidget(submitBtn);
-    buttonlayout->addSpacing(20);
-    //buttonlayout->addWidget(ShowPosts);
-    //buttonlayout->addSpacing(20);
     buttonlayout->addWidget(Previous);
-    buttonlayout->addSpacing(20);
     buttonlayout->addWidget(logoutBtn);
+    buttonlayout->addStretch();
 
-    cardLayout->addWidget(title);
-    QLabel *AuthorTitle = new QLabel("Author");
-    cardLayout->addWidget(AuthorTitle);
-    cardLayout->addWidget(Author); //
-    cardLayout->addWidget(new QLabel("Your Question:"));
-    cardLayout->addWidget(questionBox);
-    cardLayout->addWidget(new QLabel("Related Questions:"));
-    cardLayout->addWidget(relatedQuestions);
-    cardLayout->addWidget(new QLabel("Questions List:"));
-    cardLayout->addWidget(viewQuestionBox);
+    QSplitter *splitter = new QSplitter(Qt::Horizontal);
 
-    cardLayout->addWidget(new QLabel("Answers:"));
-    cardLayout->addWidget(answers);
-    cardLayout->addWidget(answerBox);
-    cardLayout->addWidget(submitAns);
+    QWidget *leftPane = new QWidget;
+    QVBoxLayout *leftLayout = new QVBoxLayout(leftPane);
 
-    //layout->addWidget(new QLabel("Question Answers:"));
-    //layout->addWidget(answersList);
-    cardLayout->addLayout(buttonlayout);//
+    leftLayout->addWidget(new QLabel("Your Question:"));
+    leftLayout->addWidget(questionBox);
+    leftLayout->addWidget(new QLabel("Related Questions:"));
+    leftLayout->addWidget(relatedQuestions);
+    leftLayout->addWidget(new QLabel("Questions List:"));
+    leftLayout->addWidget(viewQuestionBox);
+
+    QWidget *rightPane = new QWidget;
+    QVBoxLayout *rightLayout = new QVBoxLayout(rightPane);
+
+    rightLayout->addWidget(new QLabel("Answers:"));
+    rightLayout->addWidget(answers);
+    rightLayout->addWidget(answerBox);
+
+    QHBoxLayout *answerBtnLayout = new QHBoxLayout();
+    answerBtnLayout->addStretch();
+    answerBtnLayout->addWidget(submitAns);
+
+    rightLayout->addLayout(answerBtnLayout);
+
+    splitter->addWidget(leftPane);
+    splitter->addWidget(rightPane);
+    splitter->setStretchFactor(0, 2);
+    splitter->setStretchFactor(1, 1);
+
+    cardLayout->addWidget(splitter);
+    cardLayout->addLayout(buttonlayout);
 
     QString inputStyle = R"(
         QLineEdit, QTextEdit, QListWidget{
-            padding: 8px;
-            border: 1px solid #ccc;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
             color: #000000;
-            background-color: #fafafa;
+            background-color: #ffffff;
         }
-        QLineEdit:focus {
-            border: 1px solid #0078d7;
-        }
-        QLineEdit::placeholder {
-            color: #888;
+        QTextEdit:focus, QLineEdit:focus {
+            border: 1px solid #3498db;
         }
     )";
 
-    Author->setStyleSheet(inputStyle);
-    setCentralWidget(widget);
     questionBox->setStyleSheet(inputStyle);
-    setCentralWidget(widget);
     answerBox->setStyleSheet(inputStyle);
-    setCentralWidget(widget);
     viewQuestionBox->setStyleSheet(inputStyle);
-    setCentralWidget(widget);
     relatedQuestions->setStyleSheet(inputStyle);
-    setCentralWidget(widget);
     answers->setStyleSheet(inputStyle);
+
     setCentralWidget(widget);
 
     connect(questionBox, &QTextEdit::textChanged, this, &StudentWindow::updateSuggestions);
-    connect(ShowPosts, &QPushButton::clicked, this, &StudentWindow::onShowPostsclicked);
     connect(Previous, &QPushButton::clicked, this, &StudentWindow::handlePrevious);
-    connect(submitBtn, &QPushButton::clicked,this, &StudentWindow::handleSubmit); //
+    connect(submitBtn, &QPushButton::clicked,this, &StudentWindow::handleSubmit);
     connect(logoutBtn, &QPushButton::clicked, this, &QWidget::close);
     connect(viewQuestionBox, &QListWidget::currentRowChanged, this, &StudentWindow::onQuestionClicked);
     connect(submitAns, &QPushButton::clicked, this, &StudentWindow::handleAnsSubmit);
 
-    //Connecting the show related questions to also show those answers when clicked
     connect(relatedQuestions, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
         QString text = item->text();
         auto &posts = postManager.getPost();
@@ -176,18 +209,16 @@ StudentWindow::StudentWindow(PostManager &pm, MainWindow* parentMain, QWidget *p
     });
 
     onShowPostsclicked();
-
 }
 void StudentWindow::handleSubmit(){
-    QString author = Author->text();
+    QString author = tempUsername;
     QString content = questionBox->toPlainText();
 
     try {
-        Post newPost(author, content);
+        Post newPost(tempUsername, content);
         postManager.addPost(newPost);
         postManager.save();
         //qDebug << "Added post. Total Posts:
-        Author->clear();
         questionBox->clear();
         QMessageBox::information(this, "Success", "Post Submitted!");
     }
@@ -251,9 +282,9 @@ void StudentWindow::handleAnsSubmit() {
     }
 
     QString answerText = answerBox->toPlainText();
-    QString author = Author->text();
+    QString author = tempUsername;
 
-    if (answerText.isEmpty() || author.isEmpty()) {
+    if (answerText.isEmpty()) {
         QMessageBox::information(this,"Error","Username or Answer missing");
         return;
     }

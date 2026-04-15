@@ -12,15 +12,75 @@
 #include "PostWidget.h"
 #include "MainWindow.h"
 #include <QComboBox>
+#include <QScrollArea>
 
-ReviewerWindow::ReviewerWindow(PostManager &pm,MainWindow* parentMain, QWidget *parent)
-    :QMainWindow(parent) , postManager(pm), mainWindow(parentMain) //
-{
+ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWindow* parentMain, QWidget *parent)
+    : QMainWindow(parent), postManager(pm), mainWindow(parentMain), tempUsername(username){
     resize(900, 600);
-//qDebug() << "displayPosts called";
-    QWidget *widget = new QWidget();
+
+    QWidget *widget = new QWidget;
     QVBoxLayout *mainLayout = new QVBoxLayout(widget);
     widget->setStyleSheet("background-color: #d3d3d3;");
+
+    QWidget *container = new QWidget;
+    QVBoxLayout *outerLayout = new QVBoxLayout(container);
+
+    QWidget *card = new QWidget;
+    card->setStyleSheet(R"(
+        QWidget {
+            background-color: white;
+            border-radius: 15px;
+        }
+    )");
+
+    QVBoxLayout *cardLayout = new QVBoxLayout(card);
+    cardLayout->setContentsMargins(20, 20, 20, 20);
+    cardLayout->setSpacing(15);
+
+    outerLayout->addWidget(card);
+    mainLayout->addWidget(container);
+
+    QWidget *header = new QWidget;
+    header->setStyleSheet(R"(
+        QWidget {
+            background-color: #f5f7fa;
+            border-radius: 10px;
+            padding: 8px;
+        }
+    )");
+
+    QHBoxLayout *headerLayout = new QHBoxLayout(header);
+
+    QLabel *title = new QLabel("Reviewer Dashboard");
+    title->setStyleSheet("font-size: 20px; font-weight: bold; color: #000000;");
+
+    QLabel *loggedText = new QLabel("Logged in as");
+    loggedText->setStyleSheet("color: #555; font-size: 12px;");
+
+    QLabel *userLabel = new QLabel(tempUsername);
+    userLabel->setStyleSheet(R"(
+    QLabel{
+        background-color:#e8f0fe;
+        color:#1f618d;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+)");
+
+    headerLayout->addWidget(title);
+    headerLayout->addStretch();
+
+    headerLayout->addWidget(loggedText);
+    headerLayout->addWidget(userLabel);
+
+    cardLayout->addWidget(header);
+
+    QFrame *line = new QFrame;
+    line->setFrameShape(QFrame::HLine);
+    line->setStyleSheet("color: #ddd;");
+    cardLayout->addWidget(line);
+
     QComboBox *filterBox = new QComboBox;
     filterBox->setStyleSheet(R"(
         QComboBox {
@@ -59,40 +119,62 @@ ReviewerWindow::ReviewerWindow(PostManager &pm,MainWindow* parentMain, QWidget *
 
        }
          )");
+
     filterBox->setEditable(true);
     filterBox->lineEdit()->setReadOnly(true);
     filterBox->addItems({"All Posts","UpVoted","DownVoted"});
     filterBox->setCurrentIndex(-1);
     filterBox->lineEdit()->setPlaceholderText("Options");
 
-    mainLayout->addWidget(filterBox);
+    cardLayout->addWidget(filterBox);
 
     postsLayout = new QVBoxLayout();
-    mainLayout->addLayout(postsLayout);
-    mainLayout->addStretch();
-    QHBoxLayout *bottomLayout = new QHBoxLayout();
-    bottomLayout->addStretch();
-    QPushButton *Previous = new QPushButton("Previous");
-    QString pillstyle = "QPushButton {"
-    " background-color: #3498db;"
-    " color: white;"
-    " border-radius: 20px;"
-    " padding: 8px 16px;"
-    " font-size: 14px;"
-    "}"
-    "QPushButton:hover {"
-    " background-color:#1f618d;"
-    "}";
-    Previous->setStyleSheet((pillstyle));
-    Previous->setFixedWidth((150));
-    Previous->setFixedHeight((40));
-    bottomLayout->addWidget(Previous);
-    mainLayout->addLayout(bottomLayout);
-    setCentralWidget((widget));
-    //displayPosts();
-    connect(filterBox, &QComboBox::currentTextChanged, this, &ReviewerWindow::onFilterChanged);
-    connect(Previous, &QPushButton::clicked, this, &ReviewerWindow::handlePrevious);
 
+    QWidget *postsContainer = new QWidget;
+    postsContainer->setLayout(postsLayout);
+
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(postsContainer);
+    scrollArea->setStyleSheet("border: none;");
+
+    cardLayout->addWidget(scrollArea);
+
+    QHBoxLayout *bottomLayout = new QHBoxLayout();
+
+    QPushButton *previousBtn = new QPushButton("Previous");
+
+    QString pill = R"(
+        QPushButton {
+            background-color: #3498db;
+            color: white;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        QPushButton:hover {
+            background-color:#1f618d;
+        }
+    )";
+
+    previousBtn->setStyleSheet(pill);
+    previousBtn->setFixedSize(150, 40);
+
+    bottomLayout->addStretch();
+    bottomLayout->addWidget(previousBtn);
+    bottomLayout->addStretch();
+
+    cardLayout->addLayout(bottomLayout);
+
+    setCentralWidget(widget);
+
+    connect(filterBox, &QComboBox::currentTextChanged,
+            this, &ReviewerWindow::onFilterChanged);
+
+    connect(previousBtn, &QPushButton::clicked,
+            this, &ReviewerWindow::handlePrevious);
+
+    displayPosts("All Posts");
 }
 void ReviewerWindow::onFilterChanged(const QString &text){
     displayPosts(text);

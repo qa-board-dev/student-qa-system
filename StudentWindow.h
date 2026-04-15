@@ -20,7 +20,7 @@ class StudentWindow: public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit StudentWindow(PostManager &pm, MainWindow* parentMain,QWidget *parent = nullptr);
+    explicit StudentWindow(PostManager &pm,const QString &username, MainWindow* parentMain,QWidget *parent = nullptr);
 
 private:
     MainWindow* mainWindow;
@@ -31,6 +31,7 @@ private:
     QListWidget *viewQuestionBox;//
     QListWidget *relatedQuestions;
     QListWidget *answers;
+    QString tempUsername;
     int selectedQuestion = -1;
 private slots: //
     void handleSubmit(); //

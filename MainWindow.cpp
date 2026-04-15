@@ -125,8 +125,16 @@ QWidget* MainWindow::createLoginScreen()
     username->setStyleSheet(inputStyle);
     password->setStyleSheet(inputStyle);
 
+    loginBtn->setDefault(true);
+    connect(username, &QLineEdit::returnPressed,
+          loginBtn, &QPushButton::click);
+
+    connect(password, &QLineEdit::returnPressed,
+            loginBtn, &QPushButton::click);
+
     connect(loginBtn, &QPushButton::clicked, this, [this, username, password](){
         if (model.authenticate(username->text(), password->text())) {
+            currentUsername = username->text();
             stack->setCurrentIndex(2);
         } else {
             QMessageBox::warning(this, "Error", "Login failed!");
@@ -448,7 +456,7 @@ QWidget* MainWindow::createRoleSelectionScreen()
             return;
         }
         postManager.load();
-        StudentWindow *student = new StudentWindow(postManager,this); //
+        StudentWindow *student = new StudentWindow(postManager, currentUsername, this); //
         student->show();
         this->hide();
     });
@@ -466,11 +474,12 @@ QWidget* MainWindow::createRoleSelectionScreen()
             signupMode = false;
 
             QMessageBox::information(this, "Success", "Account created!");
+            currentUsername = tempUsername;
             stack->setCurrentIndex(0);
             return;
         }
         postManager.load();
-        ReviewerWindow *reviewer = new ReviewerWindow(postManager, this);
+        ReviewerWindow *reviewer = new ReviewerWindow(postManager, currentUsername, this);
         reviewer->show();
         this->hide();
 	});

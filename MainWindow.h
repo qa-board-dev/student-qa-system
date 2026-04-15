@@ -36,6 +36,7 @@ private:
     QString tempUsername;
     QString tempPassword;
     QString tempInviteCode;
+    QString currentUsername;
     bool signupMode = false;
 
     void switchScreen(QWidget* screen);
