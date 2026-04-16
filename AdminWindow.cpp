@@ -101,7 +101,7 @@ QString AdminWindow::generateInvitation(const QDate& date) {
     //Save Codes
     QJsonObject saveCodeObject;
 
-    saveCodeObject["code"] = tmpCode;
+    saveCodeObject["code"] = QString::number(tmpCode);
     saveCodeObject["expiration"] = expirationDate.toString("yyyy-MM-dd");
     saveCodeObject["status"] = "unused";
     loadCodeArray.append(saveCodeObject);

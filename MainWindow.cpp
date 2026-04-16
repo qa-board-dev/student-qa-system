@@ -493,18 +493,32 @@ QWidget* MainWindow::createRoleSelectionScreen()
 
 bool MainWindow::isValidInviteCode(const QString& code)
 {
-    QFile file("codes.txt");
+    QFile file("codes.json");
+    QJsonArray loadCodeArray;
+    QByteArray bytes;
 
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return false;
-    QTextStream in(&file);
-
-    while (!in.atEnd())
-    {
-        if (in.readLine().trimmed() == code){
-        return true;
-        }
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
+        bytes = file.readAll();
+        file.close();
+        QJsonDocument loadDoc = QJsonDocument::fromJson(bytes);
+        loadCodeArray = loadDoc.array();
     }
+
+    //QJsonDocument doc = QJsonDocument::fromJson(bytes);
+    //QJsonArray codeArray = doc.array();
+
+    for (int i = 0; i < loadCodeArray.size(); i++) {
+        QJsonObject loadCodeObject = loadCodeArray.at(i).toObject();
+        QString codeCheck = loadCodeObject["code"].toString();
+        QDate dateCheck = QDate::fromString(loadCodeObject["expiration"].toString(), "yyyy-MM-dd");
+        QString statusCheck = loadCodeObject["status"].toString();
+
+        if (code == codeCheck && QDate::currentDate() <= dateCheck && statusCheck == "unused" ) {
+            return true;
+        }
+
+    }
+
     return false;
 }
 
