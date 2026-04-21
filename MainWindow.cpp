@@ -450,6 +450,7 @@ QWidget* MainWindow::createRoleSelectionScreen()
             }
             model.save();
             signupMode = false;
+            setCodeUsed(tempInviteCode);
 
             QMessageBox::information(this, "Success", "Account created!");
             stack->setCurrentIndex(0);
@@ -472,6 +473,7 @@ QWidget* MainWindow::createRoleSelectionScreen()
             }
             model.save();
             signupMode = false;
+            setCodeUsed(tempInviteCode);
 
             QMessageBox::information(this, "Success", "Account created!");
             currentUsername = tempUsername;
@@ -491,6 +493,8 @@ QWidget* MainWindow::createRoleSelectionScreen()
     return widget;
 }
 
+// Checks if invite code is valid based on
+// code, date, and usage status
 bool MainWindow::isValidInviteCode(const QString& code)
 {
     QFile file("codes.json");
@@ -503,9 +507,6 @@ bool MainWindow::isValidInviteCode(const QString& code)
         QJsonDocument loadDoc = QJsonDocument::fromJson(bytes);
         loadCodeArray = loadDoc.array();
     }
-
-    //QJsonDocument doc = QJsonDocument::fromJson(bytes);
-    //QJsonArray codeArray = doc.array();
 
     for (int i = 0; i < loadCodeArray.size(); i++) {
         QJsonObject loadCodeObject = loadCodeArray.at(i).toObject();
@@ -520,6 +521,40 @@ bool MainWindow::isValidInviteCode(const QString& code)
     }
 
     return false;
+}
+
+// Sets a one time use code a "used" after a signup
+// so it cannot be reused
+void MainWindow::setCodeUsed(const QString& code) {
+    QFile file("codes.json");
+    QJsonArray loadCodeArray;
+    QByteArray bytes;
+
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
+        bytes = file.readAll();
+        file.close();
+        QJsonDocument loadDoc = QJsonDocument::fromJson(bytes);
+        loadCodeArray = loadDoc.array();
+    }
+
+    // Find matching unused code and set as used
+    for (int i = 0; i < loadCodeArray.size(); i++) {
+        QJsonObject loadCodeObject = loadCodeArray.at(i).toObject();
+        QString codeCheck = loadCodeObject["code"].toString();
+        QString statusCheck = loadCodeObject["status"].toString();
+
+        if (code == codeCheck && statusCheck == "unused") {
+            loadCodeObject["status"] = "used";
+            loadCodeArray[i] = loadCodeObject;
+        }
+
+    }
+
+    QJsonDocument doc(loadCodeArray);
+    QFile saveFile("codes.json");
+    if (!saveFile.open(QIODevice::WriteOnly)) return;
+    saveFile.write(doc.toJson());
+    saveFile.close();
 }
 
 void MainWindow::showRoleSelection() {

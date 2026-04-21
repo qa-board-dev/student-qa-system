@@ -30,6 +30,7 @@ private:
     QWidget* createRoleSelectionScreen();
     QWidget* createSignupScreen();
     bool isValidInviteCode(const QString& code);
+    void setCodeUsed(const QString& code);
 
     PostManager postManager;//
 
