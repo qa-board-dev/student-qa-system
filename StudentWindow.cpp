@@ -209,6 +209,10 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
     });
 
     onShowPostsclicked();
+
+    refreshTimer = new QTimer(this);
+    connect(refreshTimer, &QTimer::timeout, this, &StudentWindow::refreshPosts);
+    refreshTimer->start(3000);
 }
 void StudentWindow::handleSubmit(){
     QString author = tempUsername;
@@ -298,4 +302,16 @@ void StudentWindow::handleAnsSubmit() {
     answerBox->clear();
     onQuestionClicked(selectedQuestion);
     onShowPostsclicked();
+}
+
+void StudentWindow::refreshPosts() {
+    int prevSelected = viewQuestionBox->currentRow();
+
+    postManager.load();
+    onShowPostsclicked();
+
+    if (prevSelected >= 0 && prevSelected < viewQuestionBox->count()) {
+        viewQuestionBox->setCurrentRow(prevSelected);
+        onQuestionClicked(prevSelected);
+    }
 }

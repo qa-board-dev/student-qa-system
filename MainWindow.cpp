@@ -76,7 +76,7 @@ QWidget* MainWindow::createLoginScreen()
     QPushButton *loginBtn = new QPushButton("Login");
     loginBtn->setStyleSheet("background-color: #0078d7; color: white; padding: 10px; border-radius: 6px;");
 
-    QPushButton *firstUserBtn = new QPushButton("First User Setup");
+    firstUserBtn = new QPushButton("First User Setup");
     firstUserBtn->setStyleSheet(R"(
         QPushButton {
             background: transparent;
@@ -88,7 +88,7 @@ QWidget* MainWindow::createLoginScreen()
         }
     )");
 
-    QPushButton *signupBtn = new QPushButton("Sign Up");
+    signupBtn = new QPushButton("Sign Up");
     signupBtn->setStyleSheet(R"(
         QPushButton {
             background: transparent;
@@ -143,6 +143,12 @@ QWidget* MainWindow::createLoginScreen()
     });
 
     connect(firstUserBtn, &QPushButton::clicked, this, [this]() {
+        model.load();
+        if (!model.firstUser()) {
+            QMessageBox::information(this, "Error", "An admin account has already been created. Please log in or sign up.");
+            updateLoginButtons();
+            return;
+        }
         stack->setCurrentIndex(1);
     });
 
@@ -151,16 +157,14 @@ QWidget* MainWindow::createLoginScreen()
       stack->setCurrentIndex(3);
     });
 
-    if (!model.firstUser()) {
-        firstUserBtn->hide();
-    }
-
-    if (model.firstUser())
-    {
-        signupBtn->hide();
-    }
+    updateLoginButtons();
 
     return widget;
+}
+
+void MainWindow::updateLoginButtons() {
+    firstUserBtn->setVisible(model.firstUser());
+    signupBtn->setVisible(!model.firstUser());
 }
 
 QWidget* MainWindow::createFirstUserSetupScreen()
@@ -228,12 +232,21 @@ QWidget* MainWindow::createFirstUserSetupScreen()
     password->setStyleSheet(inputStyle);
 
     connect(createBtn, &QPushButton::clicked, this, [this, username, password](){
+        model.load();
+        if (!model.firstUser()) {
+            QMessageBox::information(this, "Error", "An admin account has already been created. Please log in or sign up.");
+            updateLoginButtons();
+            stack->setCurrentIndex(0);
+            return;
+        }
+
         model.addUser(username->text(), password->text(), {"admin"});
         model.save();
 		QSettings settings("Admin", "QA");
 		settings.setValue("AdminCreated", true);
         QMessageBox::information(this, "Success",
                                  "Admin created. Please login again.");
+        updateLoginButtons();
         stack->setCurrentIndex(0);
     });
 

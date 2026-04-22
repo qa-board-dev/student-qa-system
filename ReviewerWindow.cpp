@@ -175,6 +175,10 @@ ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWin
             this, &ReviewerWindow::handlePrevious);
 
     displayPosts("All Posts");
+
+    refreshTimer = new QTimer(this);
+    connect(refreshTimer, &QTimer::timeout, this, &ReviewerWindow::refreshPosts);
+    refreshTimer->start(3000);
 }
 void ReviewerWindow::onFilterChanged(const QString &text){
     displayPosts(text);
@@ -199,6 +203,12 @@ void ReviewerWindow::handlePrevious() {
     }
     this->hide();
 }
+
+void ReviewerWindow::refreshPosts() {
+    postManager.load();
+    displayPosts("All Posts");
+}
+
 /*
     QWidget *widget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout(widget);
