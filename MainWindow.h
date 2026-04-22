@@ -7,6 +7,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPushButton>
 #include <QStackedWidget>
 #include "UserModel.h"
 #include "PostManager.h"
@@ -33,6 +34,7 @@ private:
     QWidget* createSignupScreen();
     bool isValidInviteCode(const QString& code);
     void setCodeUsed(const QString& code);
+    void updateLoginButtons();
 
     PostManager postManager;
     CodeManager codeManager;
@@ -42,6 +44,9 @@ private:
     QString tempInviteCode;
     QString currentUsername;
     bool signupMode = false;
+
+    QPushButton *signupBtn;
+    QPushButton *firstUserBtn;
 
     void switchScreen(QWidget* screen);
 };
