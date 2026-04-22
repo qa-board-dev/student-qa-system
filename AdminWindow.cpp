@@ -6,18 +6,11 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QDateEdit>
-#include <QFile>
-#include <QJsonArray>
-#include <QJsonObject>
 #include <QPushButton>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <qrandom.h>
-#include <QRandomGenerator>
 
-
-AdminWindow::AdminWindow(QWidget *parent)
-    :QMainWindow(parent)
+AdminWindow::AdminWindow(CodeManager& cm, QWidget *parent) : QMainWindow(parent), codeManager(cm)
 {
     resize(900, 600);
 
@@ -51,7 +44,7 @@ AdminWindow::AdminWindow(QWidget *parent)
         if (deadline->date() < QDate::currentDate()) {
             QMessageBox::warning(this, "Selected Expiration Date Has Passed", inviteCode->text());
         } else {
-            newInviteCode = generateInvitation(deadline->date());
+            newInviteCode = codeManager.generate(deadline->date());
         }
 
         inviteCode->clear();
@@ -59,60 +52,4 @@ AdminWindow::AdminWindow(QWidget *parent)
     });
 
     connect(logoutBtn, &QPushButton::clicked, this, [this]() {emit logoutRequest();});
-}
-
-QString AdminWindow::generateInvitation(const QDate& date) {
-    QString failed = "";
-    bool isUnique = false;
-    QJsonArray loadCodeArray;
-    QByteArray bytes;
-    //Load Codes
-    QFile file("codes.json");
-
-    if (file.exists() && file.open(QIODevice::ReadOnly)) {
-        bytes = file.readAll();
-        file.close();
-        QJsonDocument loadDoc = QJsonDocument::fromJson(bytes);
-        loadCodeArray = loadDoc.array();
-    }
-
-    //End Load
-
-    QDate expirationDate = date;
-    int tmpCode;
-
-    while (!isUnique) {
-        tmpCode = QRandomGenerator::global()->bounded(1000, 9999);
-        isUnique = true;
-
-        for (int i = 0; i < loadCodeArray.size(); i++) {
-            QJsonObject loadUserObject = loadCodeArray.at(i).toObject();
-            int uniqueCheck = loadUserObject["code"].toInt();
-
-            if (uniqueCheck == tmpCode) {
-                isUnique = false;
-            }
-        }
-    }
-
-    QString tmpInviteCode;
-    tmpInviteCode = QString::number(tmpCode);
-
-    //Save Codes
-    QJsonObject saveCodeObject;
-
-    saveCodeObject["code"] = QString::number(tmpCode);
-    saveCodeObject["expiration"] = expirationDate.toString("yyyy-MM-dd");
-    saveCodeObject["status"] = "unused";
-    loadCodeArray.append(saveCodeObject);
-
-    QJsonDocument doc(loadCodeArray);
-    bytes = doc.toJson();
-
-    if (!file.open(QIODevice::WriteOnly)) return failed;
-    file.write(bytes);
-    file.close();
-    //End Save
-
-    return tmpInviteCode;
 }

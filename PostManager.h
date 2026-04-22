@@ -4,13 +4,21 @@
 
 #ifndef PROJECT_A1_POSTMANAGER_H
 #define PROJECT_A1_POSTMANAGER_H
+
 #include "Post.h"
 #include <vector>
 #include <QString>
+#include <QObject>
+#include <QNetworkAccessManager>
+
 using namespace std;
 
-class PostManager {
+class PostManager : public QObject {
+    Q_OBJECT
+
 public:
+    explicit PostManager(QObject *parent = nullptr);
+
     void addPost(const Post& post);
     vector<Post>& getPost();
     void save();
@@ -19,8 +27,8 @@ public:
 
 private:
     vector<Post> posts;
-    QString filepath = "posts.json";
-
+    QString firebaseURL = "https://cse360-qa-default-rtdb.firebaseio.com/posts.json";
+    QNetworkAccessManager *networkManager;
 };
 
 

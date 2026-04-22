@@ -3,13 +3,17 @@
 //
 #include "PostManager.h"
 #include <vector>
-#include <QFile>
-#include <QJSonArray>
-#include <QJSonArray>
-#include <QJSonObject>
-#include <QJSonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QEventLoop>
 
 using namespace std;
+
+PostManager::PostManager(QObject *parent) : QObject(parent), networkManager(new QNetworkAccessManager(this)) {}
 
 void PostManager::addPost(const Post& post) {
    posts.push_back(post);
@@ -22,8 +26,7 @@ vector<Post>& PostManager::getPost() {
 
 }
 
-void PostManager::save()
-   {
+void PostManager::save() {
  QJsonArray array;
    for(const Post &p : posts) {
       QJsonObject obj;
@@ -41,20 +44,39 @@ void PostManager::save()
       array.append(obj);
    }
    QJsonDocument doc(array);
-   QFile file(filepath);
-   if (!file.open(QIODevice::WriteOnly)) return;
 
-   file.write(doc.toJson());
-   file.close();
+   QUrl url(firebaseURL);
+   QNetworkRequest request(url);
+   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+   QNetworkReply *reply = networkManager->put(request, doc.toJson());
+
+   connect(reply, &QNetworkReply::finished, this, [reply]() {
+      if (reply->error() != QNetworkReply::NoError) {
+         qWarning() << "Save failed: " << reply->errorString();
+      }
+      reply->deleteLater();
+   });
+
 }
 
 void PostManager::load() {
-QFile file(filepath);
-   if (!file.exists()) return;
-   if (!file.open(QIODevice::ReadOnly)) return;
+   QUrl url(firebaseURL);
+   QNetworkRequest request(url);
 
-   QByteArray data = file.readAll();
-   QJsonDocument doc = QJsonDocument::fromJson(data);
+   QNetworkReply *reply = networkManager->get(request);
+
+   QEventLoop loop;
+   connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+   loop.exec();
+
+   if (reply->error() != QNetworkReply::NoError) {
+      qWarning() << "load failed: " << reply->errorString();
+      reply->deleteLater();
+      return;
+   }
+
+   QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
    QJsonArray array = doc.array();
    posts.clear();
    for (const QJsonValue &val : array) {
@@ -73,8 +95,9 @@ QFile file(filepath);
          posts.back().addAnswer(ans);
       }
    }
-   file.close();
+   reply->deleteLater();
 }
+
 vector<Post> PostManager::getRelated(const Post &target) { //keyword search
    vector<Post> result;
    for (const Post &p : posts) {
