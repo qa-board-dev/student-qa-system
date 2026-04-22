@@ -12,6 +12,8 @@
 #include <QVBoxLayout>
 #include "PostManager.h"
 #include "MainWindow.h"
+#include <QTimer>
+
 
 class MainWindow;
 
@@ -30,7 +32,9 @@ private:
     //QTextEdit *reviewBox; //
     QVBoxLayout *postsLayout;
     QString tempUsername;
+    QTimer *refreshTimer;
     void displayPosts(const QString &filter);
+    void refreshPosts();
 
 private slots:
     void handlePrevious();

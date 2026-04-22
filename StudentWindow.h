@@ -12,6 +12,7 @@
 #include <QTextEdit> //
 #include "PostManager.h"
 #include <QListWidget>
+#include <QTimer>
 
 
 class MainWindow; //
@@ -32,7 +33,10 @@ private:
     QListWidget *relatedQuestions;
     QListWidget *answers;
     QString tempUsername;
+    QTimer *refreshTimer;
     int selectedQuestion = -1;
+    void refreshPosts();
+
 private slots: //
     void handleSubmit(); //
     void onShowPostsclicked();
