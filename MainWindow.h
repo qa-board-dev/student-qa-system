@@ -11,6 +11,8 @@
 #include "UserModel.h"
 #include "PostManager.h"
 #include "StudentWindow.h"
+#include "CodeManager.h"
+
 
 class MainWindow : public QMainWindow
 {
@@ -32,7 +34,8 @@ private:
     bool isValidInviteCode(const QString& code);
     void setCodeUsed(const QString& code);
 
-    PostManager postManager;//
+    PostManager postManager;
+    CodeManager codeManager;
 
     QString tempUsername;
     QString tempPassword;

@@ -7,16 +7,17 @@
 
 #include <QMainWindow>
 #include <QStackedWidget>
+#include "CodeManager.h"
 
 class AdminWindow: public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit AdminWindow(QWidget *parent = nullptr);
+    explicit AdminWindow(CodeManager& cm, QWidget *parent = nullptr);
 
 private:
     QStackedWidget *stack;
-    QString generateInvitation(const QDate& expirationDate);
+    CodeManager& codeManager;
 
 signals:
     void logoutRequest();

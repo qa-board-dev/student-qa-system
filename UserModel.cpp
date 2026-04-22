@@ -3,12 +3,14 @@
 //
 
 #include "UserModel.h"
-#include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <qjsonarray.h>
-#include <qjsonobject.h>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QEventLoop>
+
+UserModel::UserModel(QObject *parent) : QObject(parent), networkManager(new QNetworkAccessManager(this)) {}
 
 bool UserModel::addUser(QString username, QString password, QStringList roles) {
     for (const auto& user : users) {
@@ -64,28 +66,37 @@ void UserModel::save() {
     }
 
     QJsonDocument doc(userArray);
-    QByteArray bytes = doc.toJson();
-    QFile file(filepath);
+    QUrl url(firebaseURL);
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    if (!file.open(QIODevice::WriteOnly)) return;
-    file.write(bytes);
-    file.close();
+    QNetworkReply *reply = networkManager->put(request, doc.toJson());
+
+    connect(reply, &QNetworkReply::finished, this, [reply]() {
+       if (reply->error() != QNetworkReply::NoError) {
+          qWarning() << "Save failed: " << reply->errorString();
+       }
+       reply->deleteLater();
+    });
 }
 
 void UserModel::load() {
-    QFile file(filepath);
+    QUrl url(firebaseURL);
+    QNetworkRequest request(url);
 
-    if (!file.exists()) {
-        //qDebug() << "File does not exist";
+    QNetworkReply *reply = networkManager->get(request);
+
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        qWarning() << "load failed: " << reply->errorString();
+        reply->deleteLater();
         return;
     }
-    //qDebug() << "File loaded";
 
-    if (!file.open(QIODevice::ReadOnly)) return;
-    QByteArray bytes = file.readAll();
-    file.close();
-
-    QJsonDocument doc = QJsonDocument::fromJson(bytes);
+    QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
     QJsonArray userArray = doc.array();
 
     users.clear();
