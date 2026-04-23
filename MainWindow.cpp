@@ -134,6 +134,7 @@ QWidget* MainWindow::createLoginScreen()
             loginBtn, &QPushButton::click);
 
     connect(loginBtn, &QPushButton::clicked, this, [this, username, password](){
+        model.load();
         if (model.authenticate(username->text(), password->text())) {
             currentUsername = username->text();
             stack->setCurrentIndex(2);
@@ -347,6 +348,7 @@ QWidget* MainWindow::createSignupScreen()
             return;
         }
 
+            codeManager.load();
         if (!isValidInviteCode(inviteCode->text())) {
             QMessageBox::warning(this, "Error", "Invalid invite code");
             return;
