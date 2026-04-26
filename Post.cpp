@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <QVector>
 using namespace std;
 
  Post::Post(const QString& author, const QString& content): author(author), content(content), approved(false) {

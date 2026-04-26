@@ -32,12 +32,21 @@ void PostManager::save() {
       QJsonObject obj;
       obj["author"] = p.getAuthor();
       obj["content"] = p.getContent();
+      obj["approved"] = p.isApproved();
+
+      QJsonArray keywordsArray;
+      for (const QString &keyword : p.getKeywords()) {
+         keywordsArray.append(keyword);
+      }
+      obj["keywords"] = keywordsArray;
 
       QJsonArray answersArray;
       for (const Answer& ans : p.getAnswers()) {
          QJsonObject answerObject;
          answerObject["author"] = ans.author;
          answerObject["content"] = ans.content;
+         answerObject["approved"] = ans.approved;
+         answerObject["isReviewer"] = ans.isReviewer;
          answersArray.append(answerObject);
       }
       obj["answers"] = answersArray;
@@ -86,12 +95,24 @@ void PostManager::load() {
 
       posts.emplace_back(author,content);
 
+      if (obj.contains("approved")) {
+         if (obj["approved"].toBool()) {
+            posts.back().approve();
+         }
+      }
+
       QJsonArray answersArray = obj["answers"].toArray();
       for (int j = 0; j < answersArray.size(); j++) {
          QJsonObject answerObject = answersArray[j].toObject();
          Answer ans;
          ans.author = answerObject["author"].toString();
          ans.content = answerObject["content"].toString();
+
+         if (answerObject.contains("approved")) {
+            ans.approved = answerObject["approved"].toBool();
+         }else {
+            ans.isReviewer = false;
+         }
          posts.back().addAnswer(ans);
       }
    }

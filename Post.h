@@ -16,16 +16,20 @@ struct Answer {
     QString author;
     QString content;
     bool approved = false;
+    bool isReviewer = false;
 };
 
 class Post {
 private:
     QString author; // QString change
     QString content; // QString change
+    QString reviewerFeedback;
     QVector<Answer> answers;
     bool approved;
     QStringList keywords;
     void generateKeywords();
+    void setReviewerFeedback();
+    QString getReviewerFeedback() const;
 public:
     Post(const QString& author, const QString &content); // QString change
     QString getAuthor() const; //QString change

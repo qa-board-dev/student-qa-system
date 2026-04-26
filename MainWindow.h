@@ -31,6 +31,7 @@ private:
     QWidget* createLoginScreen();
     QWidget* createFirstUserSetupScreen();
     QWidget* createRoleSelectionScreen();
+    QWidget* createRoleSelectionNoAdminScreen();
     QWidget* createSignupScreen();
     bool isValidInviteCode(const QString& code);
     void setCodeUsed(const QString& code);

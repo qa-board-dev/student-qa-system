@@ -13,6 +13,7 @@
 #include "PostManager.h"
 #include "MainWindow.h"
 #include <QTimer>
+#include <QMap>
 
 
 class MainWindow;
@@ -22,23 +23,28 @@ class ReviewerWindow: public QMainWindow {
 
 public:
     explicit ReviewerWindow(PostManager &pm, const QString &username, MainWindow* parentMain, QWidget *parent = nullptr);
-private slots:
-    //void onShowPostsClicked();
 
 private:
-    //QStackedWidget *stack;
+    PostManager &postManager;
     MainWindow* mainWindow;
-    PostManager &postManager; //
-    //QTextEdit *reviewBox; //
-    QVBoxLayout *postsLayout;
     QString tempUsername;
+
+    QListWidget *viewQuestionBox;
+    QListWidget *answers;
+    QTextEdit *feedbackBox;
+    QMap<int, QString> feedbackMap;
+    int selectedQuestion = -1;
+
     QTimer *refreshTimer;
     void displayPosts(const QString &filter);
     void refreshPosts();
 
 private slots:
-    void handlePrevious();
-    void onFilterChanged(const QString &text);
+    void onShowPostsclicked();
+    void loadQuestions();
+    void onQuestionClicked(int row);
+    void handleFeedbackSubmit();
+    void handleBack();
 };
 
 #endif //USER_UI_REVIEWERWINDOW_H

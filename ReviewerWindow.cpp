@@ -13,34 +13,52 @@
 #include "MainWindow.h"
 #include <QComboBox>
 #include <QScrollArea>
+#include "ReviewerWindow.h"
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QSplitter>
+#include <QMessageBox>
+#include <QTimer>
+
+#include "ReviewerWindow.h"
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QSplitter>
+#include <QMessageBox>
+#include <QTimer>
 
 ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWindow* parentMain, QWidget *parent)
-    : QMainWindow(parent), postManager(pm), mainWindow(parentMain), tempUsername(username){
-    resize(900, 600);
+    :QMainWindow(parent), postManager(pm), mainWindow(parentMain), tempUsername(username)
+{
+    resize(1200, 800);
 
     QWidget *widget = new QWidget;
     QVBoxLayout *mainLayout = new QVBoxLayout(widget);
     widget->setStyleSheet("background-color: #d3d3d3;");
 
-    QWidget *container = new QWidget;
-    QVBoxLayout *outerLayout = new QVBoxLayout(container);
+    QWidget* container = new QWidget;
+    QVBoxLayout* outerLayout = new QVBoxLayout(container);
 
-    QWidget *card = new QWidget;
+    QWidget* card = new QWidget;
     card->setStyleSheet(R"(
         QWidget {
             background-color: white;
             border-radius: 15px;
         }
+        QLabel{
+            color: #000000;
+        }
     )");
 
-    QVBoxLayout *cardLayout = new QVBoxLayout(card);
-    cardLayout->setContentsMargins(20, 20, 20, 20);
+    QVBoxLayout* cardLayout = new QVBoxLayout(card);
     cardLayout->setSpacing(15);
+    cardLayout->setContentsMargins(20, 20, 20, 20);
 
     outerLayout->addWidget(card);
     mainLayout->addWidget(container);
 
     QWidget *header = new QWidget;
+    header->setFixedHeight(70);
     header->setStyleSheet(R"(
         QWidget {
             background-color: #f5f7fa;
@@ -54,23 +72,31 @@ ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWin
     QLabel *title = new QLabel("Reviewer Dashboard");
     title->setStyleSheet("font-size: 20px; font-weight: bold; color: #000000;");
 
+    QLabel *userLabel = new QLabel(tempUsername);
+    userLabel->setStyleSheet(R"(
+        QLabel{
+            background-color:#e8f0fe;
+            color:#1f618d;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+    )");
+    QString pillshape = "QPushButton {"
+        " background-color: #0078d7;"
+        " color: white;"
+        " border-radius: 20px;"
+        " padding: 8px 16px;"
+        " font-size: 14px;"
+        "}"
+        "QPushButton:hover {"
+        " background-color:#1f618d;"
+        "}";
     QLabel *loggedText = new QLabel("Logged in as");
     loggedText->setStyleSheet("color: #555; font-size: 12px;");
 
-    QLabel *userLabel = new QLabel(tempUsername);
-    userLabel->setStyleSheet(R"(
-    QLabel{
-        background-color:#e8f0fe;
-        color:#1f618d;
-        padding: 6px 12px;
-        border-radius: 12px;
-        font-weight: bold;
-    }
-)");
-
     headerLayout->addWidget(title);
     headerLayout->addStretch();
-
     headerLayout->addWidget(loggedText);
     headerLayout->addWidget(userLabel);
 
@@ -81,184 +107,184 @@ ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWin
     line->setStyleSheet("color: #ddd;");
     cardLayout->addWidget(line);
 
-    QComboBox *filterBox = new QComboBox;
-    filterBox->setStyleSheet(R"(
-        QComboBox {
-        background-color: #ffffff;
-        border: 1px solid #dcdcdc;
-        border-radius: 8px;
-        padding: 6px 12px;
-        padding-right: 25px;
-        font-size: 13px;
-        color: #222;
-        }
-        QComboBox:hover {
-      border: 1px solid #999
-      }
+    viewQuestionBox = new QListWidget(this);
+    answers = new QListWidget(this);
 
-       QComboBox::drop-down {
-        sub-control-origin: padding
-        sub-control-position: top right;
-        width: 20px;
-        border: none;
-        width: 20px;
-       }
-      QComboBox::down-arrow {
-      image: none;
-      border-left: 5px solid transparency;
-      border-right: 6px solid #555;
-      border-top: 6px solid #555;
-      margin-right: 8px;
+    feedbackBox = new QTextEdit(this);
+    feedbackBox->setPlaceholderText("Write reviewer feedback...");
+
+    QHBoxLayout *buttonlayout = new QHBoxLayout();
+    buttonlayout->setSpacing(20);
+
+    QPushButton *submitFeedbackBtn = new QPushButton("Submit Feedback");
+    submitFeedbackBtn->setFixedWidth(150);
+    submitFeedbackBtn->setFixedHeight(40);
+    submitFeedbackBtn->setStyleSheet(pillshape);
+
+    QPushButton *logoutBtn = new QPushButton("Logout");
+    logoutBtn->setFixedWidth(150);
+    logoutBtn->setFixedHeight(40);
+    logoutBtn->setStyleSheet(pillshape);
+
+    QPushButton *backBtn = new QPushButton("Back");
+    backBtn->setFixedWidth(150);
+    backBtn->setFixedHeight(40);
+    backBtn->setStyleSheet(pillshape);
+
+    QSplitter *splitter = new QSplitter(Qt::Horizontal);
+
+    QWidget *leftPane = new QWidget;
+    QVBoxLayout *leftLayout = new QVBoxLayout(leftPane);
+
+    leftLayout->addWidget(new QLabel("Questions"));
+    leftLayout->addWidget(viewQuestionBox);
+
+    QWidget *rightPane = new QWidget;
+    QVBoxLayout *rightLayout = new QVBoxLayout(rightPane);
+
+    rightLayout->addWidget(new QLabel("Answers"));
+    rightLayout->addWidget(answers);
+    rightLayout->addWidget(new QLabel("Feedback"));
+    rightLayout->addWidget(feedbackBox);
+    rightLayout->addWidget(submitFeedbackBtn);
+
+    splitter->addWidget(leftPane);
+    splitter->addWidget(rightPane);
+    splitter->setStretchFactor(0, 2);
+    splitter->setStretchFactor(1,1);
+
+    cardLayout->addWidget(splitter);
+    cardLayout->addLayout(buttonlayout);
+
+    QHBoxLayout *bottom = new QHBoxLayout();
+    bottom->addWidget(backBtn);
+    bottom->addWidget(logoutBtn);
+
+    cardLayout->addWidget(splitter);
+    cardLayout->addLayout(bottom);
+
+    QString inputStyle = R"(
+        QLineEdit, QTextEdit, QListWidget{
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            color: #000000;
+            background-color: #ffffff;
+            font-size: 16px;
+        }
+        QText:focus, QLineEdit:focus{
+            border: 1px solid #3498db;
+        }
+        QLineEdit::placeholder {
+            color: #888;
 }
+)";
 
-       QComboBox QAbstractItemView {
-        background-color: #ffffff;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        selection-background-color: #f0f2f5;
-
-       }
-         )");
-
-    filterBox->setEditable(true);
-    filterBox->lineEdit()->setReadOnly(true);
-    filterBox->addItems({"All Posts","UpVoted","DownVoted"});
-    filterBox->setCurrentIndex(-1);
-    filterBox->lineEdit()->setPlaceholderText("Options");
-
-    cardLayout->addWidget(filterBox);
-
-    postsLayout = new QVBoxLayout();
-
-    QWidget *postsContainer = new QWidget;
-    postsContainer->setLayout(postsLayout);
-
-    QScrollArea *scrollArea = new QScrollArea;
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setWidget(postsContainer);
-    scrollArea->setStyleSheet("border: none;");
-
-    cardLayout->addWidget(scrollArea);
-
-    QHBoxLayout *bottomLayout = new QHBoxLayout();
-
-    QPushButton *previousBtn = new QPushButton("Previous");
-
-    QString pill = R"(
-        QPushButton {
-            background-color: #3498db;
-            color: white;
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 14px;
-        }
-        QPushButton:hover {
-            background-color:#1f618d;
-        }
-    )";
-
-    previousBtn->setStyleSheet(pill);
-    previousBtn->setFixedSize(150, 40);
-
-    bottomLayout->addStretch();
-    bottomLayout->addWidget(previousBtn);
-    bottomLayout->addStretch();
-
-    cardLayout->addLayout(bottomLayout);
+    viewQuestionBox->setStyleSheet(inputStyle);
+    answers->setStyleSheet(inputStyle);
+    feedbackBox->setStyleSheet(inputStyle);
 
     setCentralWidget(widget);
 
-    connect(filterBox, &QComboBox::currentTextChanged,
-            this, &ReviewerWindow::onFilterChanged);
+    connect(viewQuestionBox, &QListWidget::currentRowChanged,this, &ReviewerWindow::onQuestionClicked);
 
-    connect(previousBtn, &QPushButton::clicked,
-            this, &ReviewerWindow::handlePrevious);
+    connect(submitFeedbackBtn, &QPushButton::clicked,this, &ReviewerWindow::handleFeedbackSubmit);
 
-    displayPosts("All Posts");
+    connect(backBtn, &QPushButton::clicked,this, &ReviewerWindow::handleBack);
+
+    connect(logoutBtn, &QPushButton::clicked,this, &QWidget::close);
+
+    loadQuestions();
 
     refreshTimer = new QTimer(this);
     connect(refreshTimer, &QTimer::timeout, this, &ReviewerWindow::refreshPosts);
     refreshTimer->start(3000);
 }
-void ReviewerWindow::onFilterChanged(const QString &text){
-    displayPosts(text);
-}
-void ReviewerWindow::displayPosts(const QString &filter) {
-    QLayoutItem *item;
-    while ((item = postsLayout->takeAt(0)) != nullptr) {
-        delete item->widget();
-        delete item;
+
+void ReviewerWindow::onShowPostsclicked() {
+    const auto &posts = postManager.getPost();
+    viewQuestionBox->clear();
+
+    for (const Post &p : posts) {
+        QString postText = p.getAuthor() + ": " + p.getContent();
+        viewQuestionBox->addItem(postText);
     }
-   //qDebug() << "Post count: " << postManager.getPost().size();
-    for (const Post &p : postManager.getPost()) {
-        if (filter == "All Posts") {
-            PostWidget *widget = new PostWidget(p.getAuthor(),p.getContent(),p.getAnswers());
-            postsLayout->addWidget(widget);
+}
+void ReviewerWindow::loadQuestions() {
+    viewQuestionBox->clear();
+
+    const auto &posts = postManager.getPost();
+
+    for (const Post &p : posts) {
+        QString postText = p.getAuthor()+": " + p.getContent();
+        viewQuestionBox->addItem(postText);
+    }
+}
+
+// ================= CLICK QUESTION =================
+void ReviewerWindow::onQuestionClicked(int row) {
+    selectedQuestion = row;
+    answers->clear();
+
+    if (selectedQuestion < 0) return;
+
+    auto &posts = postManager.getPost();
+
+    for (const Answer &a : posts[row].getAnswers()) {
+        QString displayText;
+        if (a.isReviewer) {
+            displayText = "Reviewer " + a.author + ": " + a.content;
+        }else {
+            displayText = a.author + ": " + a.content;
         }
+
+        answers->addItem(displayText);
     }
 }
-void ReviewerWindow::handlePrevious() {
+
+// ================= FEEDBACK =================
+void ReviewerWindow::handleFeedbackSubmit() {
+    if (selectedQuestion < 0) {
+        QMessageBox::information(this, "Error", "Select a question first");
+        return;
+    }
+
+    QString feedback = feedbackBox->toPlainText();
+    QString author = tempUsername;
+
+    if (feedback.isEmpty()) {
+        QMessageBox::information(this, "Error", "Feedback cannot be empty");
+        return;
+    }
+
+    Answer ans;
+    ans.author = author;
+    ans.content = feedback;
+    ans.isReviewer = true;
+
+    postManager.getPost()[selectedQuestion].addAnswer(ans);
+    postManager.save();
+    feedbackBox->clear();
+    loadQuestions();
+    onQuestionClicked(selectedQuestion);
+
+}
+
+// ================= BACK =================
+void ReviewerWindow::handleBack() {
     if (mainWindow) {
         mainWindow->showRoleSelection();
     }
     this->hide();
 }
-
 void ReviewerWindow::refreshPosts() {
+    int prevSelected = viewQuestionBox->currentRow();
+
     postManager.load();
-    displayPosts("All Posts");
-}
+    onShowPostsclicked();
 
-/*
-    QWidget *widget = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(widget);
-
-    QLabel *title = new QLabel("Reviewer Dashboard");
-    title->setAlignment(Qt::AlignCenter);
-
-    QListWidget *answersToReview = new QListWidget;
-
-    reviewBox = new QTextEdit(this);//
-    reviewBox->setPlaceholderText("Write your review here: ");
-
-    QPushButton *submitReview = new QPushButton("Submit Review");
-    QPushButton *logoutBtn = new QPushButton("Logout");
-    QPushButton *ShowPosts = new QPushButton("Show Posts"); //
-
-
-    layout->addWidget(title);
-    layout->addWidget(new QLabel("Answers:"));
-    layout->addWidget(answersToReview);
-    layout->addWidget(new QLabel("Review:"));
-    layout->addWidget(reviewBox);
-    layout->addWidget(submitReview);
-    layout->addWidget(ShowPosts);
-    layout->addWidget(logoutBtn);
-
-    setCentralWidget(widget);
-
-    connect(ShowPosts, &QPushButton::clicked, this, &ReviewerWindow::onShowPostsClicked);
-    connect(logoutBtn, &QPushButton::clicked, this, &QWidget::close);
-
-}
-void ReviewerWindow::onShowPostsClicked() {
-    //qDebug() << "ShowPosts clicked!";
-    //if (!reviewBox) {
-       // qDebug()<< "reviewBox is null!";
-        //return;
-    //}
-    // reviewBox->clear();
-
-    const auto &posts = postManager.getPost();
-    if (posts.size()==0) {
-        QMessageBox::information(this,"Error","No posts available");
-    }
-    reviewBox->clear();
-    for (const Post &p : posts) {
-        QString postText;
-        postText += "Author: " + p.getAuthor() + "\n"; //QString change
-        postText += "Content: " + p.getContent() + "\n"; //QString change
-      reviewBox->append(postText);
+    if (prevSelected >= 0 && prevSelected < viewQuestionBox->count()) {
+        viewQuestionBox->setCurrentRow(prevSelected);
+        onQuestionClicked(prevSelected);
     }
 }
-*/

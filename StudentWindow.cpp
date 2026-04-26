@@ -19,7 +19,7 @@ using namespace std;
 
 StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindow* parentMain, QWidget *parent)
     :QMainWindow(parent), postManager(pm), mainWindow(parentMain), tempUsername(username) {
-    resize(900, 600);
+    resize(1200, 800);
 
     QWidget *widget = new QWidget;
     QVBoxLayout *mainLayout = new QVBoxLayout(widget);
@@ -36,6 +36,11 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
         }
         QLabel {
             color: #000000;
+            font-size: 16px;
+        }
+        QLineEdit::placeholder {
+            color #888;
+            font-size: 25px;
         }
     )");
 
@@ -47,6 +52,7 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
     mainLayout->addWidget(container);
 
     QWidget *header = new QWidget;
+    header->setFixedHeight(70);
     header->setStyleSheet(R"(
         QWidget {
             background-color: #f5f7fa;
@@ -58,7 +64,7 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
     QHBoxLayout *headerLayout = new QHBoxLayout(header);
 
     QLabel *title = new QLabel("Student Dashboard");
-    title->setStyleSheet("font-size: 20px; font-weight: bold; color: #000000;");
+    title->setStyleSheet("font-size: 25px; font-weight: bold; color: #000000;");
 
     QLabel *userLabel = new QLabel(tempUsername);
     userLabel->setStyleSheet(R"(
@@ -99,7 +105,7 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
     answerBox->setPlaceholderText("Type your answer here: ");
 
     QString pillshape = "QPushButton {"
-    " background-color: #3498db;"
+    " background-color: #0078d7;"
     " color: white;"
     " border-radius: 20px;"
     " padding: 8px 16px;"
@@ -124,14 +130,14 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
     logoutBtn->setFixedHeight(40);
     logoutBtn->setStyleSheet(pillshape);
 
-    QPushButton *Previous = new QPushButton("Previous");
-    Previous->setFixedWidth(150);
-    Previous->setFixedHeight(40);
-    Previous->setStyleSheet(pillshape);
+   // QPushButton *Previous = new QPushButton("Back");
+    //Previous->setFixedWidth(150);
+    //Previous->setFixedHeight(40);
+    //Previous->setStyleSheet(pillshape);
 
     buttonlayout->addStretch();
-    buttonlayout->addWidget(submitBtn);
-    buttonlayout->addWidget(Previous);
+    //buttonlayout->addWidget(submitBtn);
+    //buttonlayout->addWidget(Previous);
     buttonlayout->addWidget(logoutBtn);
     buttonlayout->addStretch();
 
@@ -140,12 +146,13 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
     QWidget *leftPane = new QWidget;
     QVBoxLayout *leftLayout = new QVBoxLayout(leftPane);
 
-    leftLayout->addWidget(new QLabel("Your Question:"));
-    leftLayout->addWidget(questionBox);
     leftLayout->addWidget(new QLabel("Related Questions:"));
     leftLayout->addWidget(relatedQuestions);
     leftLayout->addWidget(new QLabel("Questions List:"));
     leftLayout->addWidget(viewQuestionBox);
+    leftLayout->addWidget(new QLabel("Your Question:"));
+    leftLayout->addWidget(questionBox);
+    leftLayout->addWidget(submitBtn);
 
     QWidget *rightPane = new QWidget;
     QVBoxLayout *rightLayout = new QVBoxLayout(rightPane);
@@ -175,22 +182,27 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
             border-radius: 10px;
             color: #000000;
             background-color: #ffffff;
+            font-size: 16px;
         }
         QTextEdit:focus, QLineEdit:focus {
             border: 1px solid #3498db;
         }
+        QLineEdit::placeholder {
+            color: #888;
+        }
     )";
 
-    questionBox->setStyleSheet(inputStyle);
+
     answerBox->setStyleSheet(inputStyle);
     viewQuestionBox->setStyleSheet(inputStyle);
+    questionBox->setStyleSheet(inputStyle);
     relatedQuestions->setStyleSheet(inputStyle);
     answers->setStyleSheet(inputStyle);
 
     setCentralWidget(widget);
 
     connect(questionBox, &QTextEdit::textChanged, this, &StudentWindow::updateSuggestions);
-    connect(Previous, &QPushButton::clicked, this, &StudentWindow::handlePrevious);
+    //connect(Previous, &QPushButton::clicked, this, &StudentWindow::handlePrevious);
     connect(submitBtn, &QPushButton::clicked,this, &StudentWindow::handleSubmit);
     connect(logoutBtn, &QPushButton::clicked, this, &QWidget::close);
     connect(viewQuestionBox, &QListWidget::currentRowChanged, this, &StudentWindow::onQuestionClicked);
