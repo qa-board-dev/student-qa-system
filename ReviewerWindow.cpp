@@ -47,6 +47,10 @@ ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWin
         }
         QLabel{
             color: #000000;
+            font-size: 16px;
+        }
+        QLineEdit::placeholder{
+            color: #888;
         }
     )");
 
@@ -137,15 +141,15 @@ ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWin
     QWidget *leftPane = new QWidget;
     QVBoxLayout *leftLayout = new QVBoxLayout(leftPane);
 
-    leftLayout->addWidget(new QLabel("Questions"));
+    leftLayout->addWidget(new QLabel("Questions:"));
     leftLayout->addWidget(viewQuestionBox);
 
     QWidget *rightPane = new QWidget;
     QVBoxLayout *rightLayout = new QVBoxLayout(rightPane);
 
-    rightLayout->addWidget(new QLabel("Answers"));
+    rightLayout->addWidget(new QLabel("Answers:"));
     rightLayout->addWidget(answers);
-    rightLayout->addWidget(new QLabel("Feedback"));
+    rightLayout->addWidget(new QLabel("Feedback:"));
     rightLayout->addWidget(feedbackBox);
     rightLayout->addWidget(submitFeedbackBtn);
 
