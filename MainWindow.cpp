@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     stack = new QStackedWidget(this);
     setCentralWidget(stack);
-    setMinimumSize(900,600);
+    setMinimumSize(1400,900);
 
     stack->addWidget(createLoginScreen());          //0
     stack->addWidget(createFirstUserSetupScreen()); //1

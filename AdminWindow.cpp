@@ -12,7 +12,7 @@
 
 AdminWindow::AdminWindow(CodeManager& cm, QWidget *parent) : QMainWindow(parent), codeManager(cm)
 {
-    resize(900, 600);
+    resize(1400, 900);
     setWindowTitle("Admin Dashboard");
 
     QWidget *widget = new QWidget;

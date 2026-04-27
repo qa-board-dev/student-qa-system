@@ -19,7 +19,7 @@ using namespace std;
 
 StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindow* parentMain, bool showBack, QWidget *parent)
     :QMainWindow(parent), postManager(pm), mainWindow(parentMain), tempUsername(username) {
-    resize(1200, 800);
+    resize(1400, 900);
 
     QWidget *widget = new QWidget;
     QVBoxLayout *mainLayout = new QVBoxLayout(widget);

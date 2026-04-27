@@ -30,7 +30,7 @@
 ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWindow* parentMain, bool showBack, QWidget *parent)
     :QMainWindow(parent), postManager(pm), mainWindow(parentMain), tempUsername(username)
 {
-    resize(1200, 800);
+    resize(1400, 900);
 
     QWidget *widget = new QWidget;
     QVBoxLayout *mainLayout = new QVBoxLayout(widget);
@@ -238,15 +238,22 @@ void ReviewerWindow::onQuestionClicked(int row) {
 
     auto &posts = postManager.getPost();
 
-    for (const Answer &a : posts[row].getAnswers()) {
+    for (const Answer& a : posts[row].getAnswers()) {
         QString displayText;
         if (a.isReviewer) {
             displayText = "Reviewer " + a.author + ": " + a.content;
-        }else {
+        } else {
             displayText = a.author + ": " + a.content;
         }
 
-        answers->addItem(displayText);
+        QListWidgetItem *item = new QListWidgetItem(displayText);
+        if (a.isReviewer) {
+            item->setForeground(QColor("#1f618d"));
+            QFont font = item->font();
+            font.setBold(true);
+            item->setFont(font);
+        }
+        answers->addItem(item);
     }
 }
 
