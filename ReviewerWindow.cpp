@@ -192,7 +192,12 @@ ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWin
 
     connect(backBtn, &QPushButton::clicked,this, &ReviewerWindow::handleBack);
 
-    connect(logoutBtn, &QPushButton::clicked,this, &QWidget::close);
+    connect(logoutBtn, &QPushButton::clicked, this, [this]() {
+        if (mainWindow) {
+            mainWindow->showLoginScreen();
+        }
+        this->close();
+    });
 
     loadQuestions();
 

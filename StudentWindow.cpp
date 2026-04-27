@@ -204,7 +204,15 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
     connect(questionBox, &QTextEdit::textChanged, this, &StudentWindow::updateSuggestions);
     //connect(Previous, &QPushButton::clicked, this, &StudentWindow::handlePrevious);
     connect(submitBtn, &QPushButton::clicked,this, &StudentWindow::handleSubmit);
-    connect(logoutBtn, &QPushButton::clicked, this, &QWidget::close);
+
+    connect(logoutBtn, &QPushButton::clicked, this, [this]() {
+        if (mainWindow) {
+            mainWindow->showLoginScreen();
+        }
+        this->close();
+    });
+
+
     connect(viewQuestionBox, &QListWidget::currentRowChanged, this, &StudentWindow::onQuestionClicked);
     connect(submitAns, &QPushButton::clicked, this, &StudentWindow::handleAnsSubmit);
 

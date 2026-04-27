@@ -666,3 +666,10 @@ void MainWindow::showRoleSelection() {
     stack->setCurrentIndex(2);
     this->show();
 }
+
+// Used for other windows, like student and reviewer,
+// to return to login screen rather than quitting app.
+void MainWindow::showLoginScreen() {
+    stack->setCurrentIndex(0);
+    this->show();
+}
