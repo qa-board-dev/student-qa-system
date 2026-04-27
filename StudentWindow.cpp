@@ -17,7 +17,7 @@ using namespace std;
 #include <QSplitter>
 #include <QFrame>
 
-StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindow* parentMain, QWidget *parent)
+StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindow* parentMain, bool showBack, QWidget *parent)
     :QMainWindow(parent), postManager(pm), mainWindow(parentMain), tempUsername(username) {
     resize(1200, 800);
 
@@ -130,14 +130,14 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
     logoutBtn->setFixedHeight(40);
     logoutBtn->setStyleSheet(pillshape);
 
-   // QPushButton *Previous = new QPushButton("Back");
-    //Previous->setFixedWidth(150);
-    //Previous->setFixedHeight(40);
-    //Previous->setStyleSheet(pillshape);
+    QPushButton *backBtn = new QPushButton("Back");
+    backBtn->setFixedWidth(150);
+    backBtn->setFixedHeight(40);
+    backBtn->setStyleSheet(pillshape);
+    backBtn->setVisible(showBack);
 
     buttonlayout->addStretch();
-    //buttonlayout->addWidget(submitBtn);
-    //buttonlayout->addWidget(Previous);
+    buttonlayout->addWidget(backBtn);
     buttonlayout->addWidget(logoutBtn);
     buttonlayout->addStretch();
 
@@ -202,7 +202,7 @@ StudentWindow::StudentWindow(PostManager &pm, const QString &username, MainWindo
     setCentralWidget(widget);
 
     connect(questionBox, &QTextEdit::textChanged, this, &StudentWindow::updateSuggestions);
-    //connect(Previous, &QPushButton::clicked, this, &StudentWindow::handlePrevious);
+    connect(backBtn, &QPushButton::clicked, this, &StudentWindow::handlePrevious);
     connect(submitBtn, &QPushButton::clicked,this, &StudentWindow::handleSubmit);
 
     connect(logoutBtn, &QPushButton::clicked, this, [this]() {
@@ -295,7 +295,21 @@ void StudentWindow::onQuestionClicked(int row) {
     auto &posts = postManager.getPost();
 
     for (const Answer& a : posts[row].getAnswers()) {
-        answers->addItem(a.author + ": " + a.content);
+        QString displayText;
+        if (a.isReviewer) {
+            displayText = "Reviewer " + a.author + ": " + a.content;
+        } else {
+            displayText = a.author + ": " + a.content;
+        }
+
+        QListWidgetItem *item = new QListWidgetItem(displayText);
+        if (a.isReviewer) {
+            item->setForeground(QColor("#1f618d"));
+            QFont font = item->font();
+            font.setBold(true);
+            item->setFont(font);
+        }
+        answers->addItem(item);
     }
 }
 

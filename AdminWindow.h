@@ -21,6 +21,7 @@ private:
 
 signals:
     void logoutRequest();
+    void backRequest();
 };
 
 #endif //USER_UI_ADMINWINDOW_H

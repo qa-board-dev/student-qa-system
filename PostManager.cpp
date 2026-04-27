@@ -110,8 +110,10 @@ void PostManager::load() {
 
          if (answerObject.contains("approved")) {
             ans.approved = answerObject["approved"].toBool();
-         }else {
-            ans.isReviewer = false;
+         }
+
+         if (answerObject.contains("isReviewer")) {
+            ans.isReviewer = answerObject["isReviewer"].toBool();
          }
          posts.back().addAnswer(ans);
       }

@@ -21,7 +21,7 @@ class StudentWindow: public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit StudentWindow(PostManager &pm,const QString &username, MainWindow* parentMain,QWidget *parent = nullptr);
+    explicit StudentWindow(PostManager &pm,const QString &username, MainWindow* parentMain,bool showBack = false, QWidget *parent = nullptr);
 
 private:
     MainWindow* mainWindow;

@@ -139,10 +139,22 @@ QWidget* MainWindow::createLoginScreen()
         model.load();
         if (model.authenticate(username->text(), password->text())) {
             currentUsername = username->text();
-            if (currentUsername == "admin") {
+            QStringList roles = model.getRoles(currentUsername);
+
+            if (roles.contains("admin")) {
                 stack->setCurrentIndex(2);
-            }else {
-                stack->setCurrentIndex(3);
+            } else if (roles.contains("student")) {
+                postManager.load();
+                auto *student = new StudentWindow(postManager, currentUsername, this, false);
+                student->show();
+                this->hide();
+            } else if (roles.contains("reviewer")) {
+                postManager.load();
+                auto *reviewer = new ReviewerWindow(postManager, currentUsername, this, false);
+                reviewer->show();
+                this->hide();
+            } else {
+                QMessageBox::warning(this, "Error", "No roles assigned to this account");
             }
         } else {
             QMessageBox::warning(this, "Error", "Login failed!");
@@ -304,7 +316,7 @@ QWidget* MainWindow::createSignupScreen()
     inviteCode->setPlaceholderText("Invite Code");
     //inviteCode->setEchoMode(QLineEdit::inviteCode);
 
-    QPushButton *nextBtn = new QPushButton("Next");
+    QPushButton *nextBtn = new QPushButton("Create Account");
 
     QPushButton* backButton = new QPushButton("Back to login");
     backButton->setStyleSheet(R"(
@@ -457,6 +469,13 @@ QWidget* MainWindow::createRoleSelectionScreen()
             stack->setCurrentIndex(0);
         });
 
+        connect(admin, &AdminWindow::backRequest, this, [this, admin]() {
+            this->show();
+            admin->close();
+            admin->deleteLater();
+            stack->setCurrentIndex(2);
+        });
+
         admin->show();
 		this->hide();
     });
@@ -479,7 +498,7 @@ QWidget* MainWindow::createRoleSelectionScreen()
             return;
         }
         postManager.load();
-        StudentWindow *student = new StudentWindow(postManager, currentUsername, this); //
+        StudentWindow *student = new StudentWindow(postManager, currentUsername, this, true); //
         student->show();
         this->hide();
     });
@@ -503,7 +522,7 @@ QWidget* MainWindow::createRoleSelectionScreen()
             return;
         }
         postManager.load();
-        ReviewerWindow *reviewer = new ReviewerWindow(postManager, currentUsername, this);
+        ReviewerWindow *reviewer = new ReviewerWindow(postManager, currentUsername, this, true);
         reviewer->show();
         this->hide();
 	});
@@ -614,7 +633,7 @@ QWidget* MainWindow::createRoleSelectionNoAdminScreen()
             return;
         }
         postManager.load();
-        StudentWindow *student = new StudentWindow(postManager, currentUsername, this); //
+        StudentWindow *student = new StudentWindow(postManager, currentUsername, this, false); //
         student->show();
         this->hide();
     });
@@ -638,7 +657,7 @@ QWidget* MainWindow::createRoleSelectionNoAdminScreen()
             return;
         }
         postManager.load();
-        ReviewerWindow *reviewer = new ReviewerWindow(postManager, currentUsername, this);
+        ReviewerWindow *reviewer = new ReviewerWindow(postManager, currentUsername, this, false);
         reviewer->show();
         this->hide();
 	});

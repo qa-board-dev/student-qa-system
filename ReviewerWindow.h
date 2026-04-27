@@ -22,7 +22,7 @@ class ReviewerWindow: public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit ReviewerWindow(PostManager &pm, const QString &username, MainWindow* parentMain, QWidget *parent = nullptr);
+    explicit ReviewerWindow(PostManager &pm, const QString &username, MainWindow* parentMain, bool showBack = false, QWidget *parent = nullptr);
 
 private:
     PostManager &postManager;

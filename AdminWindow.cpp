@@ -179,6 +179,12 @@ AdminWindow::AdminWindow(CodeManager& cm, QWidget *parent) : QMainWindow(parent)
     generateBtn->setCursor(Qt::PointingHandCursor);
     generateBtn->setStyleSheet(pillshape);
 
+    QPushButton *backBtn = new QPushButton("Back");
+    backBtn->setFixedWidth(200);
+    backBtn->setFixedHeight(42);
+    backBtn->setCursor(Qt::PointingHandCursor);
+    backBtn->setStyleSheet(pillshape);
+
     QPushButton *logoutBtn = new QPushButton("Logout");
     logoutBtn->setFixedWidth(200);
     logoutBtn->setFixedHeight(42);
@@ -191,6 +197,7 @@ AdminWindow::AdminWindow(CodeManager& cm, QWidget *parent) : QMainWindow(parent)
     cardLayout->addWidget(deadline);
     cardLayout->addSpacing(5);
     cardLayout->addWidget(generateBtn, 0, Qt::AlignCenter);
+    cardLayout->addWidget(backBtn, 0, Qt::AlignCenter);
     cardLayout->addWidget(logoutBtn, 0, Qt::AlignCenter);
 
     setCentralWidget(widget);
@@ -210,6 +217,10 @@ AdminWindow::AdminWindow(CodeManager& cm, QWidget *parent) : QMainWindow(parent)
 
         inviteCode->clear();
         inviteCode->setText(newInviteCode);
+    });
+
+    connect(backBtn, &QPushButton::clicked, this, [this]() {
+        emit backRequest();
     });
 
     connect(logoutBtn, &QPushButton::clicked, this, [this]() {

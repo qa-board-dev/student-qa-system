@@ -27,7 +27,7 @@
 #include <QMessageBox>
 #include <QTimer>
 
-ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWindow* parentMain, QWidget *parent)
+ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWindow* parentMain, bool showBack, QWidget *parent)
     :QMainWindow(parent), postManager(pm), mainWindow(parentMain), tempUsername(username)
 {
     resize(1200, 800);
@@ -130,6 +130,7 @@ ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWin
     backBtn->setFixedWidth(150);
     backBtn->setFixedHeight(40);
     backBtn->setStyleSheet(pillshape);
+    backBtn->setVisible(showBack);
 
     QSplitter *splitter = new QSplitter(Qt::Horizontal);
 
@@ -157,8 +158,10 @@ ReviewerWindow::ReviewerWindow(PostManager &pm, const QString &username, MainWin
     cardLayout->addLayout(buttonlayout);
 
     QHBoxLayout *bottom = new QHBoxLayout();
+    bottom->addStretch();
     bottom->addWidget(backBtn);
     bottom->addWidget(logoutBtn);
+    bottom->addStretch();
 
     cardLayout->addWidget(splitter);
     cardLayout->addLayout(bottom);
@@ -282,6 +285,7 @@ void ReviewerWindow::handleBack() {
     }
     this->hide();
 }
+
 void ReviewerWindow::refreshPosts() {
     int prevSelected = viewQuestionBox->currentRow();
 
